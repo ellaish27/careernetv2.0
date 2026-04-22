@@ -1,5 +1,6 @@
 # app.py
 from flask import Flask, render_template, redirect, url_for, jsonify, request
+from werkzeug.middleware.proxy_fix import ProxyFix
 from config import Config
 from extensions import db, login_manager, csrf
 from models import User, Student, SiteContent, SiteTheme, University, AcademicRecord, CustomPage
@@ -16,6 +17,10 @@ import json
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    # Trust the Replit proxy so Flask sees the real https scheme/host;
+    # required for Secure cookies and CSRF to work correctly behind the proxy.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
     # 1. Initialize Extensions
     db.init_app(app)
