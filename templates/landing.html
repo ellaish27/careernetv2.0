@@ -546,7 +546,7 @@
             if (!aboutContainer) return;
 
             // Image list rendered by Python from static/school folder
-            const aboutImages = {{ slideshow_images|tojson }};
+            const aboutImages = {{ (slideshow_images or [])|tojson }};
             if (!aboutImages || aboutImages.length === 0) return;
 
             const transitions = [
