@@ -1,10 +1,30 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 from flask_login import login_required, current_user
 from extensions import db
 from models import University, SiteContent, SiteTheme, User, CustomPage
 from utils import su_required
 from werkzeug.security import generate_password_hash
+from werkzeug.utils import secure_filename
+import os
 import re
+
+ALLOWED_SCHOOL_EXT = {'jpg', 'jpeg', 'png', 'webp', 'gif'}
+
+
+def _school_dir():
+    path = os.path.join(current_app.static_folder, 'school')
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
+def _list_school_images():
+    path = _school_dir()
+    files = []
+    for fname in sorted(os.listdir(path)):
+        ext = fname.rsplit('.', 1)[-1].lower() if '.' in fname else ''
+        if ext in ALLOWED_SCHOOL_EXT:
+            files.append(fname)
+    return files
 
 # ✅ FIX: Use __name__ (double underscores) for proper blueprint registration
 su_bp = Blueprint('su', __name__, url_prefix='/su')
@@ -37,8 +57,66 @@ def dashboard():
         site_content=site_content,
         site_theme=site_theme,
         pages=pages,
-        core_pages=core_pages
+        core_pages=core_pages,
+        school_images=_list_school_images()
     )
+
+
+@su_bp.route('/upload_school_image', methods=['POST'])
+@login_required
+@su_required
+def upload_school_image():
+    """Upload one or more images into static/school for the landing slideshow."""
+    files = request.files.getlist('images')
+    if not files or all(f.filename == '' for f in files):
+        flash('No file selected.', 'warning')
+        return redirect(url_for('su.dashboard') + '#slideshow-panel')
+
+    saved, skipped = 0, 0
+    target_dir = _school_dir()
+    for f in files:
+        if not f or not f.filename:
+            continue
+        ext = f.filename.rsplit('.', 1)[-1].lower() if '.' in f.filename else ''
+        if ext not in ALLOWED_SCHOOL_EXT:
+            skipped += 1
+            continue
+        safe_name = secure_filename(f.filename)
+        dest = os.path.join(target_dir, safe_name)
+        # avoid overwriting existing files
+        base, dot, ex = safe_name.rpartition('.')
+        i = 2
+        while os.path.exists(dest):
+            safe_name = f"{base}-{i}.{ex}"
+            dest = os.path.join(target_dir, safe_name)
+            i += 1
+        f.save(dest)
+        saved += 1
+
+    msg = f'Uploaded {saved} image(s).'
+    if skipped:
+        msg += f' Skipped {skipped} unsupported file(s).'
+    flash(msg, 'success' if saved else 'warning')
+    return redirect(url_for('su.dashboard') + '#slideshow-panel')
+
+
+@su_bp.route('/delete_school_image', methods=['POST'])
+@login_required
+@su_required
+def delete_school_image():
+    """Delete a school slideshow image by filename."""
+    filename = request.form.get('filename', '')
+    safe = secure_filename(filename)
+    if not safe:
+        flash('Invalid filename.', 'danger')
+        return redirect(url_for('su.dashboard') + '#slideshow-panel')
+    path = os.path.join(_school_dir(), safe)
+    if os.path.isfile(path):
+        os.remove(path)
+        flash(f'Deleted {safe}.', 'success')
+    else:
+        flash('File not found.', 'warning')
+    return redirect(url_for('su.dashboard') + '#slideshow-panel')
 
 # ✅ FIX: Added the missing route causing the BuildError
 @su_bp.route('/manage_universities', methods=['GET', 'POST'])

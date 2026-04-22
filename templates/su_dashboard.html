@@ -11,6 +11,9 @@
             <a href="#pages-panel" class="list-group-item list-group-item-action" data-bs-toggle="list">
                 <i class="bi bi-file-earmark-text me-2"></i>Page Manager
             </a>
+            <a href="#slideshow-panel" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="bi bi-images me-2"></i>Landing Slideshow
+            </a>
             <a href="#users-panel" class="list-group-item list-group-item-action" data-bs-toggle="list">
                 <i class="bi bi-people-fill me-2"></i>User Management
             </a>
@@ -136,6 +139,51 @@
                                 <label class="form-label small fw-bold">Page Content (Edit Visually)</label>
                                 <textarea id="tinymce-editor" name="content"></textarea>
                             </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL: LANDING SLIDESHOW IMAGES -->
+            <div class="tab-pane fade" id="slideshow-panel">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h4 class="mb-0"><i class="bi bi-images me-2"></i>Landing Page Slideshow</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-3">
+                            Images here are auto-loaded into the landing page slideshow with random animated transitions.
+                            Supported formats: JPG, JPEG, PNG, WEBP, GIF.
+                        </p>
+
+                        <form action="{{ url_for('su.upload_school_image') }}" method="POST" enctype="multipart/form-data" class="mb-4">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="input-group">
+                                <input type="file" name="images" class="form-control" accept="image/*" multiple required>
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-cloud-arrow-up me-1"></i>Upload</button>
+                            </div>
+                            <small class="text-muted">You can select multiple images at once.</small>
+                        </form>
+
+                        <h6 class="text-muted text-uppercase mb-3">Current Images ({{ school_images|length }})</h6>
+                        <div class="row g-3">
+                            {% for img in school_images %}
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="card h-100 shadow-sm">
+                                    <img src="{{ url_for('static', filename='school/' ~ img) }}" class="card-img-top" style="height: 140px; object-fit: cover;" alt="{{ img }}">
+                                    <div class="card-body p-2 text-center">
+                                        <p class="small text-truncate mb-2" title="{{ img }}">{{ img }}</p>
+                                        <form action="{{ url_for('su.delete_school_image') }}" method="POST" onsubmit="return confirm('Delete {{ img }}?');">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="filename" value="{{ img }}">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100"><i class="bi bi-trash"></i> Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="col-12"><div class="alert alert-warning mb-0">No images yet. Upload some to populate the slideshow.</div></div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>

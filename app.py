@@ -69,7 +69,17 @@ def create_app():
             if current_user.role == 'Student':
                 return redirect(url_for('student.portal'))
             return redirect(url_for('admin.dashboard'))
-        return render_template('landing.html')  # Our new careers office landing page
+        # Build slideshow image list dynamically from static/school folder
+        school_dir = os.path.join(app.static_folder, 'school')
+        allowed_ext = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
+        slideshow_images = []
+        if os.path.isdir(school_dir):
+            for fname in sorted(os.listdir(school_dir)):
+                if os.path.splitext(fname)[1].lower() in allowed_ext:
+                    slideshow_images.append(
+                        url_for('static', filename=f'school/{fname}')
+                    )
+        return render_template('landing.html', slideshow_images=slideshow_images)
 
     @app.route('/page/<slug>')
     def view_custom_page(slug):

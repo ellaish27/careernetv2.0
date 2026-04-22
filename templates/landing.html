@@ -545,13 +545,9 @@
             const aboutContainer = document.getElementById('aboutSlideshow');
             if (!aboutContainer) return;
 
-            // 4 Images as placeholders (Update filenames in /static/school/ as needed)
-            const aboutImages = [
-                '{{ url_for("static", filename="school/school1.jpg") }}',
-                '{{ url_for("static", filename="school/school2.jpg") }}',
-                '{{ url_for("static", filename="school/school3.webp") }}',
-                '{{ url_for("static", filename="school/school4.jpg") }}'
-            ];
+            // Image list rendered by Python from static/school folder
+            const aboutImages = {{ slideshow_images|tojson }};
+            if (!aboutImages || aboutImages.length === 0) return;
 
             const transitions = [
                 'fade', 'slide-left', 'slide-up', 'zoom-in', 'zoom-out', 
