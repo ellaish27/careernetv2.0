@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+{% block page_title %}Account Settings{% endblock %}
+{% block app_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="bi bi-gear-fill me-2"></i>Account Settings</h4>
+            </div>
+            <div class="card-body">
+                <!-- Change Password -->
+                <h6 class="text-primary text-uppercase small">Change Password</h6>
+                <form method="POST" class="mb-4">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" value="change_password">
+                    <div class="mb-2">
+                        <label class="form-label small">Current Password</label>
+                        <input type="password" name="current_password" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">New Password</label>
+                        <input type="password" name="new_password" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Confirm New Password</label>
+                        <input type="password" name="confirm_password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Update Password</button>
+                </form>
+
+                <hr>
+
+                <!-- Theme Settings -->
+                <h6 class="text-primary text-uppercase small">Appearance</h6>
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" value="update_theme">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Select Theme</label>
+                        <select name="theme_type" class="form-select" id="themeSelect">
+                            <option value="light" {% if user_theme and user_theme.type == 'light' %}selected{% endif %}>Light</option>
+                            <option value="dark" {% if user_theme and user_theme.type == 'dark' %}selected{% endif %}>Dark</option>
+                            <option value="neon" {% if user_theme and user_theme.type == 'neon' %}selected{% endif %}>Neon</option>
+                            <option value="glass" {% if user_theme and user_theme.type == 'glass' %}selected{% endif %}>Glassmorphism</option>
+                            <option value="aurora" {% if user_theme and user_theme.type == 'aurora' %}selected{% endif %}>Aurora</option>
+                            <option value="sunset" {% if user_theme and user_theme.type == 'sunset' %}selected{% endif %}>Sunset</option>
+                            <option value="custom" {% if user_theme and user_theme.type == 'custom' %}selected{% endif %}>Custom</option>
+                        </select>
+                    </div>
+
+                    <div id="customOptions" class="border p-3 rounded mb-3" style="display: {% if user_theme and user_theme.type == 'custom' %}block{% else %}none{% endif %};">
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="small">Background</label>
+                                <input type="color" name="custom_bg" value="{{ user_theme.bg if user_theme else '#ffffff' }}" class="form-control form-control-color w-100">
+                            </div>
+                            <div class="col-6">
+                                <label class="small">Text Color</label>
+                                <input type="color" name="custom_text" value="{{ user_theme.text if user_theme else '#000000' }}" class="form-control form-control-color w-100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Font Family</label>
+                        <select name="font_family" class="form-select">
+                            <option {% if user_theme and user_theme.font == 'Segoe UI' %}selected{% endif %}>Segoe UI</option>
+                            <option {% if user_theme and user_theme.font == 'Roboto' %}selected{% endif %}>Roboto</option>
+                            <option {% if user_theme and user_theme.font == 'Arial' %}selected{% endif %}>Arial</option>
+                            <option {% if user_theme and user_theme.font == 'Georgia' %}selected{% endif %}>Georgia</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-secondary btn-sm">Save Theme</button>
+                </form>
+
+                {% if current_user.role == 'Student' %}
+                <hr>
+
+                <!-- Update Subjects -->
+                <h6 class="text-primary text-uppercase small">Update Subjects</h6>
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" value="update_subjects">
+                    
+                    <label class="form-label">Principal Subjects</label>
+                    <div id="principal-edit-container"></div>
+
+                    <label class="form-label mt-3">Subsidiary Subject</label>
+                    <div class="row g-2 mb-2">
+                        <div class="col-8">
+                            <select name="a_subsidiary" class="form-select" id="sub-select">
+                                <option value="">None</option>
+                                <option value="Subsidiary ICT" {% if student and 'Subsidiary ICT' in student.a_level_json %}selected{% endif %}>Subsidiary ICT</option>
+                                <option value="Subsidiary Mathematics" {% if student and 'Subsidiary Mathematics' in student.a_level_json %}selected{% endif %}>Subsidiary Mathematics</option>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <select name="a_sub_grade" class="form-select">
+                                <option value="N/A">Grade</option>
+                                <option value="A">A</option><option value="B">B</option><option value="C">C</option>
+                                <option value="D">D</option><option value="E">E</option><option value="O">O</option><option value="F">F</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-warning mt-3">Update Subjects</button>
+                </form>
+
+                <hr>
+
+                <!-- Update Wishes -->
+                <h6 class="text-primary text-uppercase small">Courses & Campuses</h6>
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" value="update_wishes">
+                    
+                    <label class="form-label">Preferred Courses (10)</label>
+                    <div id="wishes-courses-container"></div>
+
+                    <label class="form-label mt-3">Preferred Campuses</label>
+                    <div id="wishes-campuses-container"></div>
+
+                    <button class="btn btn-info mt-3">Update Preferences</button>
+                </form>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let optionsData = {};
+    // Safely parse existing data
+    const existingSubjects = {% if student and student.a_level_json %}{{ student.a_level_json|safe }}{% else %}{}{% endif %};
+    const existingCourses = {% if student and student.course_wishes %}{{ student.course_wishes|safe }}{% else %}[]{% endif %};
+    const existingCampuses = {% if student and student.campus_choices %}{{ student.campus_choices|safe }}{% else %}[]{% endif %};
+
+    document.addEventListener('DOMContentLoaded', () => {
+        fetch('/get_options').then(r => r.json()).then(d => {
+            optionsData = d;
+            loadSubjectEditor();
+            loadWishesEditor();
+        });
+
+        // Theme toggle
+        document.getElementById('themeSelect').addEventListener('change', function() {
+            document.getElementById('customOptions').style.display = this.value === 'custom' ? 'block' : 'none';
+        });
+    });
+
+    function loadSubjectEditor() {
+        const container = document.getElementById('principal-edit-container');
+        container.innerHTML = '';
+        
+        // Get currently selected principals
+        let selectedPrincipals = [];
+        for(let sub in existingSubjects) {
+            if(sub !== 'General Paper' && sub !== 'Subsidiary ICT' && sub !== 'Subsidiary Mathematics') {
+                selectedPrincipals.push({sub: sub, grade: existingSubjects[sub]});
+            }
+        }
+
+        // Create 3 dropdowns
+        for(let i=0; i<3; i++) {
+            const current = selectedPrincipals[i] || {};
+            let html = `<div class="row g-2 mb-2">
+                <div class="col-8">
+                    <select name="a_principal" class="form-select">
+                        <option value="">Select Subject</option>`;
+            
+            optionsData.a_subjects.forEach(opt => {
+                if(opt !== 'General Paper' && opt !== 'Subsidiary ICT' && opt !== 'Subsidiary Mathematics') {
+                    const sel = opt === current.sub ? 'selected' : '';
+                    html += `<option value="${opt}" ${sel}>${opt}</option>`;
+                }
+            });
+            html += `</select>
+                </div>
+                <div class="col-4">
+                    <select name="a_grade" class="form-select">
+                        <option value="N/A">Grade</option>`;
+            optionsData.a_grades.forEach(g => {
+                const sel = g === current.grade ? 'selected' : '';
+                html += `<option ${sel}>${g}</option>`;
+            });
+            html += `</select></div></div>`;
+            container.innerHTML += html;
+        }
+    }
+
+    function loadWishesEditor() {
+        const cCont = document.getElementById('wishes-courses-container');
+        cCont.innerHTML = '';
+        
+        for(let i=1; i<=10; i++) {
+            const val = existingCourses[i-1] || "";
+            let html = `<div class="mb-2 input-group"><span class="input-group-text">${i}</span>
+                <select name="courses" class="form-select form-select-sm">
+                    <option value="">Select...</option>`;
+            
+            if(optionsData.courses) {
+                optionsData.courses.forEach(c => {
+                    const sel = c === val ? 'selected' : '';
+                    html += `<option ${sel}>${c}</option>`;
+                });
+            }
+            html += `</select></div>`;
+            cCont.innerHTML += html;
+        }
+
+        const uCont = document.getElementById('wishes-campuses-container');
+        uCont.innerHTML = '';
+        
+        for(let i=1; i<=4; i++) {
+            const val = existingCampuses[i-1] || "";
+            let html = `<div class="mb-2 input-group"><span class="input-group-text">${i}</span>
+                <select name="campuses" class="form-select form-select-sm">
+                    <option value="">Select...</option>`;
+            
+            if(optionsData.campuses) {
+                optionsData.campuses.forEach(c => {
+                    const sel = c === val ? 'selected' : '';
+                    html += `<option ${sel}>${c}</option>`;
+                });
+            }
+            html += `</select></div>`;
+            uCont.innerHTML += html;
+        }
+    }
+</script>
+{% endblock %}

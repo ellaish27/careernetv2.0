@@ -1,0 +1,782 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Fixed Viewport Wrapper - Responsive & Accessible -->
+<div class="login-viewport">
+    
+    <main class="login-card" role="main" aria-label="Login form">
+        <header class="login-header">
+            <div class="login-logo">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Holy Cross Lake View Logo" width="80" height="80" loading="lazy">
+            </div>
+            <h1 class="login-title">HCLV CareerNet</h1>
+            <!-- <p class="login-subtitle">Education for Service</p> -->
+        </header>
+        
+        <!-- Accessible Role Selection -->
+        <div class="role-selector" role="tablist" aria-label="User role selection">
+            <button type="button" 
+                    id="role-student" 
+                    class="role-btn active" 
+                    role="tab" 
+                    aria-selected="true"
+                    aria-controls="student-form"
+                    onclick="setRole('student')">
+                <i class="bi bi-mortarboard-fill" aria-hidden="true"></i>
+                Student
+            </button>
+            <button type="button" 
+                    id="role-admin" 
+                    class="role-btn" 
+                    role="tab" 
+                    aria-selected="false"
+                    aria-controls="admin-form"
+                    onclick="setRole('admin')">
+                <i class="bi bi-shield-lock" aria-hidden="true"></i>
+                Admin
+            </button>
+        </div>
+        
+        <!-- Login Form - Progressive Enhancement -->
+        <form method="POST" action="{{ url_for('auth.login') }}" id="login-form" class="js-enhanced" novalidate>
+            <!-- CSRF Protection -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <div class="form-group form-floating">
+                <input type="text" 
+                       name="username" 
+                       class="form-control" 
+                       id="username" 
+                       placeholder="Username"
+                       required
+                       autocomplete="username"
+                       aria-label="Username"
+                       aria-describedby="username-help">
+                <label for="username">
+                    <i class="bi bi-person me-2" aria-hidden="true"></i>Username
+                </label>
+                <small id="username-help" class="form-text text-muted visually-hidden">Enter your registered username</small>
+            </div>
+            
+            <div class="form-group form-floating">
+                <input type="password" 
+                       name="password" 
+                       class="form-control" 
+                       id="password" 
+                       placeholder="Password"
+                       required
+                       autocomplete="current-password"
+                       aria-label="Password"
+                       aria-describedby="password-help">
+                <label for="password">
+                    <i class="bi bi-lock me-2" aria-hidden="true"></i>Password
+                </label>
+                <small id="password-help" class="form-text text-muted visually-hidden">Enter your account password</small>
+            </div>
+            
+            <button type="submit" class="btn-primary" aria-label="Sign in to your account">
+                Sign In
+                <i class="bi bi-arrow-right-circle-fill ms-2" aria-hidden="true"></i>
+            </button>
+        </form>
+        
+        <!-- Fallback for no-JS users -->
+        <noscript>
+            <form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="form-group">
+                    <label for="username-noscript" class="form-label">Username</label>
+                    <input type="text" name="username" class="form-control" id="username-noscript" required autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="password-noscript" class="form-label">Password</label>
+                    <input type="password" name="password" class="form-control" id="password-noscript" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+        </noscript>
+        
+        <!-- Footer Actions -->
+        <footer class="login-footer">
+            <div id="register-section">
+                <span class="text-muted small">New student?</span>
+                <a href="{{ url_for('auth.register') }}" class="register-link">
+                    Create an Account
+                    <i class="bi bi-chevron-double-right ms-1" aria-hidden="true"></i>
+                </a>
+            </div>
+            <div class="security-badge">
+                <i class="bi bi-shield-lock-fill" aria-hidden="true"></i>
+                <span>Secured by HCLV CareerNet</span>
+            </div>
+        </footer>
+    </main>
+    
+    <!-- Animated Background Icons (contained within viewport) -->
+    <div id="edu-background" class="edu-background" aria-hidden="true"></div>
+</div>
+
+<!-- ✅ RESPONSIVE STYLING + ACCESSIBILITY FIXES -->
+<style>
+    /* Base Reset & Box Sizing */
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Lock viewport but allow scrolling if content overflows */
+    .login-viewport {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        min-height: -webkit-fill-available; /* iOS fix */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--color-primary, #002147) 0%, #003366 100%);
+        overflow: auto; /* Allow scroll if card is too tall */
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        z-index: 1;
+    }
+    
+    /* Login Card - Responsive Sizing */
+    .login-card {
+        background: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+        border-radius: clamp(0.75rem, 2vw, 1rem);
+        box-shadow: 0 10px 40px rgba(0, 33, 71, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        width: min(92vw, 440px); /* Responsive max-width */
+        max-height: 95vh; /* Prevent overflow on small screens */
+        overflow-y: auto; /* Scroll card content if needed */
+        position: relative;
+        z-index: 10;
+        margin: auto; /* Center in flex container */
+        transition: transform 250ms ease, box-shadow 250ms ease;
+    }
+    
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--color-primary, #002147), var(--color-accent, #D4AF37));
+        z-index: 1;
+    }
+    
+    .login-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 50px rgba(0, 33, 71, 0.3);
+    }
+    
+    /* Header Styles */
+    .login-header {
+        text-align: center;
+        margin-bottom: clamp(1rem, 3vw, 2rem);
+    }
+    
+    .login-logo {
+        width: clamp(80px, 15vw, 100px);
+        height: clamp(80px, 15vw, 100px);
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto clamp(0.75rem, 2vw, 1rem);
+        box-shadow: 0 4px 12px rgba(0, 33, 71, 0.1);
+        border: 2px solid var(--color-accent, #D4AF37);
+    }
+    
+    .login-logo img {
+        width: clamp(60px, 12vw, 80px);
+        height: clamp(60px, 12vw, 80px);
+        object-fit: contain;
+    }
+    
+    .login-title {
+        color: var(--color-primary, #002147);
+        font-size: clamp(1.5rem, 4vw, 1.75rem);
+        font-weight: 800;
+        margin-bottom: 0.25rem;
+        letter-spacing: -0.025em;
+        line-height: 1.2;
+    }
+    
+    .login-subtitle {
+        color: var(--color-accent, #D4AF37);
+        font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+        font-weight: 400;
+        font-style: italic;
+        margin-bottom: 0.5rem;
+    }
+    
+    .login-description {
+        color: var(--color-text-muted, #666);
+        font-size: clamp(0.9rem, 2.2vw, 0.95rem);
+        line-height: 1.7;
+        max-width: 320px;
+        margin: 0 auto;
+    }
+    
+    /* Role Selector - Accessible & Responsive */
+    .role-selector {
+        background: var(--color-bg-alt, #f1f3f5);
+        border-radius: 0.5rem;
+        padding: 0.25rem;
+        display: flex;
+        gap: 0.25rem;
+        margin-bottom: clamp(1rem, 3vw, 1.5rem);
+        position: relative;
+        flex-wrap: wrap; /* Allow wrapping on very small screens */
+    }
+    
+    .role-btn {
+        flex: 1;
+        min-width: 120px; /* Ensure buttons don't get too small */
+        border: none;
+        background: transparent;
+        padding: clamp(0.5rem, 2vw, 0.75rem) clamp(0.75rem, 2.5vw, 1rem);
+        border-radius: 0.375rem;
+        font-weight: 600;
+        color: var(--color-text-muted, #666);
+        font-size: clamp(0.85rem, 2vw, 0.9rem);
+        cursor: pointer;
+        transition: all 150ms ease;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+    
+    .role-btn.active {
+        background: var(--color-bg, #fff);
+        color: var(--color-primary, #002147);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .role-btn:focus-visible {
+        outline: 2px solid var(--color-accent, #D4AF37);
+        outline-offset: 2px;
+    }
+    
+    /* Form Styles - Accessible & Visible */
+    .form-group {
+        margin-bottom: clamp(1rem, 3vw, 1.5rem);
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--color-text, #1a1a1a);
+        font-size: 0.9rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: clamp(0.75rem, 2vw, 1rem);
+        border: 1px solid var(--color-border, #e0e0e0);
+        border-radius: 0.5rem;
+        font-size: clamp(0.95rem, 2.3vw, 1rem);
+        transition: border-color 150ms ease, box-shadow 150ms ease;
+        background: var(--color-bg, #fff);
+        color: var(--color-text, #1a1a1a);
+        min-height: 44px; /* Touch target size */
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--color-accent, #D4AF37);
+        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    }
+    
+    /* Form Floating Labels - Fixed Visibility */
+    .form-floating {
+        position: relative;
+    }
+    
+    .form-floating .form-control {
+        padding: clamp(1rem, 2.5vw, 1.25rem) clamp(0.75rem, 2vw, 1rem);
+        height: auto;
+        min-height: 52px;
+    }
+    
+    .form-floating label {
+        position: absolute;
+        top: 50%;
+        left: clamp(0.75rem, 2vw, 1rem);
+        transform: translateY(-50%);
+        color: var(--color-text-muted, #888);
+        padding: 0 0.25rem;
+        background: var(--color-bg, #fff);
+        transition: all 150ms ease;
+        pointer-events: none;
+        font-size: clamp(0.95rem, 2.3vw, 1rem);
+        z-index: 2; /* Ensure label is above input background */
+    }
+    
+    .form-floating .form-control:focus ~ label,
+    .form-floating .form-control:not(:placeholder-shown) ~ label {
+        transform: translateY(-120%) scale(0.85);
+        color: var(--color-primary, #002147);
+        font-weight: 500;
+    }
+    
+    /* Primary Button - High Contrast & Accessible */
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: var(--color-accent, #D4AF37);
+        color: var(--color-primary, #002147);
+        border: none;
+        border-radius: 9999px;
+        padding: clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 4vw, 2rem);
+        font-weight: 700;
+        font-size: clamp(1rem, 2.5vw, 1.05rem);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 250ms ease;
+        width: 100%;
+        box-shadow: 0 4px 12px rgba(0, 33, 71, 0.1);
+        min-height: 48px; /* Touch target */
+    }
+    
+    .btn-primary:hover {
+        background: #e5c158;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+    }
+    
+    .btn-primary:active {
+        transform: translateY(0);
+    }
+    
+    .btn-primary:focus-visible {
+        outline: 3px solid rgba(212, 175, 55, 0.5);
+        outline-offset: 2px;
+    }
+    
+    /* Footer Links */
+    .login-footer {
+        text-align: center;
+        margin-top: clamp(1.5rem, 4vw, 2rem);
+        padding-top: clamp(1rem, 3vw, 1.5rem);
+        border-top: 1px solid var(--color-border, #e0e0e0);
+    }
+    
+    .register-link {
+        color: var(--color-accent, #D4AF37);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 150ms ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: clamp(0.9rem, 2.2vw, 0.95rem);
+    }
+    
+    .register-link:hover {
+        color: #b8962e;
+    }
+    
+    .security-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: var(--color-text-muted, #999);
+        font-size: clamp(0.8rem, 2vw, 0.85rem);
+        margin-top: clamp(0.75rem, 2vw, 1rem);
+        flex-wrap: wrap;
+    }
+    
+    /* Background Animation - Performant & Contained */
+    .edu-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 2; /* Behind card but above viewport background */
+        overflow: hidden;
+    }
+    
+    .edu-illustration {
+        position: absolute;
+        color: rgba(255, 255, 255, 0.12);
+        animation: float linear infinite;
+        will-change: transform, opacity;
+        font-size: clamp(15px, 3vw, 30px);
+    }
+    
+    @keyframes float {
+        0% {
+            transform: translateY(110vh) rotate(0deg);
+            opacity: 0;
+        }
+        10% {
+            opacity: 0.25;
+        }
+        90% {
+            opacity: 0.25;
+        }
+        100% {
+            transform: translateY(-10vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+    
+    /* Utility Classes */
+    .visually-hidden {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+    }
+    
+    .form-text {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: var(--color-text-muted, #666);
+    }
+    
+    /* Dark Mode Support */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --color-bg: #0f172a;
+            --color-bg-alt: #1e293b;
+            --color-text: #f1f5f9;
+            --color-text-muted: #94a3b8;
+            --color-border: #334155;
+        }
+        
+        .login-card {
+            background: rgba(15, 23, 42, 0.97);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .form-floating label {
+            background: var(--color-bg, #0f172a);
+        }
+    }
+    
+    /* Reduced Motion Preference */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+        
+        .login-card:hover {
+            transform: none;
+        }
+    }
+    
+    /* Responsive Breakpoints */
+    @media (max-width: 768px) {
+        .login-viewport {
+            padding: 1rem;
+        }
+        
+        .login-card {
+            width: 95vw;
+            max-width: 480px;
+            padding: 1.5rem;
+        }
+        
+        .role-selector {
+            flex-direction: column;
+        }
+        
+        .role-btn {
+            min-width: auto;
+            width: 100%;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .login-title {
+            font-size: 1.4rem;
+        }
+        
+        .login-subtitle {
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+        }
+        
+        .login-logo {
+            width: 90px;
+            height: 90px;
+        }
+        
+        .login-logo img {
+            width: 70px;
+            height: 70px;
+        }
+    }
+    
+    /* High Contrast Mode Support */
+    @media (prefers-contrast: high) {
+        .form-control {
+            border-width: 2px;
+        }
+        
+        .btn-primary {
+            border: 2px solid currentColor;
+        }
+    }
+    
+    /* Print Styles */
+    @media print {
+        .login-viewport {
+            position: static;
+            height: auto;
+            background: white;
+            padding: 0;
+        }
+        
+        .login-card {
+            box-shadow: none;
+            border: 1px solid #ccc;
+            max-width: 100%;
+            margin: 0;
+        }
+        
+        .edu-background,
+        .btn-primary {
+            display: none;
+        }
+    }
+    
+    /* Focus Visible for Keyboard Navigation */
+    :focus-visible {
+        outline: 2px solid var(--color-accent, #D4AF37);
+        outline-offset: 2px;
+    }
+    
+    /* Ensure inputs are always visible */
+    input[type="text"],
+    input[type="password"] {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+    
+    /* Fix for Safari input styling */
+    input::-webkit-input-placeholder {
+        color: var(--color-text-muted, #888);
+        opacity: 1;
+    }
+    
+    input:-ms-input-placeholder {
+        color: var(--color-text-muted, #888);
+    }
+    
+    input::placeholder {
+        color: var(--color-text-muted, #888);
+        opacity: 1;
+    }
+</style>
+
+<!-- ✅ JAVASCRIPT - RESPONSIVE & ACCESSIBLE -->
+<script>
+    // Progressive Enhancement: Add 'js' class if JavaScript is enabled
+    document.documentElement.classList.remove('no-js');
+    document.documentElement.classList.add('js');
+    
+    // Role Selection Logic - Accessible & Performant
+    function setRole(role) {
+        const studentBtn = document.getElementById('role-student');
+        const adminBtn = document.getElementById('role-admin');
+        const registerSection = document.getElementById('register-section');
+        
+        // Update ARIA attributes for accessibility
+        if (role === 'student') {
+            studentBtn.classList.add('active');
+            studentBtn.setAttribute('aria-selected', 'true');
+            adminBtn.classList.remove('active');
+            adminBtn.setAttribute('aria-selected', 'false');
+            if (registerSection) registerSection.style.display = 'block';
+        } else {
+            adminBtn.classList.add('active');
+            adminBtn.setAttribute('aria-selected', 'true');
+            studentBtn.classList.remove('active');
+            studentBtn.setAttribute('aria-selected', 'false');
+            if (registerSection) registerSection.style.display = 'none';
+        }
+    }
+    
+    // Initialize on DOM load
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set default role
+        setRole('student');
+        
+        // Initialize background animation (performant version)
+        initBackgroundAnimation();
+        
+        // Form enhancement: Add focus states and validation hints
+        enhanceForm();
+        
+        // Ensure card is visible on load (fix for PC rendering issues)
+        ensureCardVisibility();
+    });
+    
+    // Fix for PC visibility issues - ensure card is rendered
+    function ensureCardVisibility() {
+        const card = document.querySelector('.login-card');
+        if (card) {
+            // Force reflow to ensure rendering
+            void card.offsetWidth;
+            
+            // Check if card is off-screen and center it
+            const rect = card.getBoundingClientRect();
+            if (rect.top < 0 || rect.left < 0) {
+                card.style.marginTop = '0';
+                card.style.marginLeft = '0';
+            }
+        }
+    }
+    
+    // Performant Background Animation
+    function initBackgroundAnimation() {
+        const container = document.getElementById('edu-background');
+        if (!container) return;
+        
+        // Respect reduced motion preference
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            return;
+        }
+        
+        // Education-themed icons (minimal DOM manipulation)
+        const icons = [
+            'bi-book', 'bi-mortarboard-fill', 'bi-pencil', 'bi-calculator-fill',
+            'bi-lightbulb', 'bi-globe2', 'bi-graph-up', 'bi-award'
+        ];
+        
+        // Create particles with document fragment for performance
+        const fragment = document.createDocumentFragment();
+        const particleCount = window.innerWidth < 768 ? 12 : 20;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const el = document.createElement('i');
+            const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+            
+            el.className = `bi ${randomIcon} edu-illustration`;
+            
+            // Random properties within constrained ranges for performance
+            const size = Math.random() * 25 + 15; // 15-40px
+            const left = Math.random() * 100;
+            const duration = Math.random() * 30 + 25; // 25-55s
+            const delay = Math.random() * 30;
+            
+            el.style.fontSize = `${size}px`;
+            el.style.left = `${left}%`;
+            el.style.animationDuration = `${duration}s`;
+            el.style.animationDelay = `-${delay}s`;
+            
+            // Subtle gold accent for visual interest
+            if (Math.random() > 0.85) {
+                el.style.color = 'rgba(212, 175, 55, 0.35)';
+            }
+            
+            fragment.appendChild(el);
+        }
+        
+        container.appendChild(fragment);
+    }
+    
+    // Form Enhancement - Progressive
+    function enhanceForm() {
+        const form = document.getElementById('login-form');
+        if (!form) return;
+        
+        // Add real-time validation hints (non-intrusive)
+        const inputs = form.querySelectorAll('input[required]');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.validity.valueMissing) {
+                    this.setAttribute('aria-invalid', 'true');
+                } else {
+                    this.removeAttribute('aria-invalid');
+                }
+            });
+            
+            // Ensure input is visible when focused
+            input.addEventListener('focus', function() {
+                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        });
+        
+        // Smooth focus transitions already handled by CSS
+    }
+    
+    // Handle window resize to re-center card if needed
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(ensureCardVisibility, 150);
+    }, { passive: true });
+    
+    // Handle form submission enhancement (optional)
+    document.getElementById('login-form')?.addEventListener('submit', function(e) {
+        // Could add client-side validation or loading state here
+        // Keeping it minimal for performance
+    });
+</script>
+
+<!-- Structured Data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "EducationalOrganization",
+  "name": "Holy Cross Lake View Senior Secondary School",
+  "url": "https://holycross-lakeview.sc.ug",
+  "logo": "{{ url_for('static', filename='logo.png', _external=true) }}",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Musiima Village, Wanyange",
+    "addressLocality": "Jinja",
+    "addressCountry": "UG"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+256-789-599-146",
+    "contactType": "admissions"
+  },
+  "sameAs": [
+    "https://www.facebook.com/HolyCrossLakeView",
+    "https://twitter.com/HCLV_Uganda"
+  ]
+}
+</script>
+{% endblock %}

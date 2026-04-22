@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block page_title %}Admin Dashboard{% endblock %}
+
+{% block app_content %}
+<!-- Stats -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card bg-primary text-white p-3 text-center h-100">
+            <h6 class="mb-1">Total Students</h6>
+            <h2 class="mb-0">{{ students|length }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card bg-success text-white p-3 text-center h-100">
+            <h6 class="mb-1">Male Students</h6>
+            <h2 class="mb-0">{{ students|selectattr('gender', 'equalto', 'M')|list|length }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card bg-info text-white p-3 text-center h-100">
+            <h6 class="mb-1">Female Students</h6>
+            <h2 class="mb-0">{{ students|selectattr('gender', 'equalto', 'F')|list|length }}</h2>
+        </div>
+    </div>
+</div>
+
+<!-- Courses Table -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-white">Course Eligibility & Export</div>
+    <div class="card-body table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light"><tr><th>Course Name</th><th>Code</th><th>Export</th></tr></thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td><strong>{{ course.name }}</strong><br><small class="text-muted">Essential: {{ course.essential|join(', ') }}</small></td>
+                    <td><span class="badge bg-secondary">{{ course.code }}</span></td>
+                    <td>
+                        <a href="{{ url_for('admin.export_csv', course_code=course.code) }}" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-spreadsheet"></i> CSV</a>
+                        <a href="{{ url_for('admin.export_pdf', course_code=course.code) }}" class="btn btn-sm btn-outline-danger"><i class="bi bi-file-earmark-pdf"></i> PDF</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" class="text-center text-muted py-4">No courses loaded in logic.py.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Student Registry -->
+<div class="card shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        Student Registry
+        <div>
+            {% if current_user.role == 'Administrator' %}
+            <a href="{{ url_for('admin.create_admin') }}" class="btn btn-sm btn-primary"><i class="bi bi-person-plus"></i> Add Admin</a>
+            {% endif %}
+            {% if current_user.role == 'SuperUser' %}
+            <a href="{{ url_for('su.dashboard') }}" class="btn btn-sm btn-warning"><i class="bi bi-shield-lock"></i> CMS Panel</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body table-responsive">
+        <table class="table table-striped align-middle">
+            <thead><tr><th>Student Name</th><th>Combination</th><th>Gender</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td>{{ s.name }}</td>
+                    <td><span class="badge bg-dark">{{ s.combination }}</span></td>
+                    <td>{{ s.gender }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.edit_student', student_id=s.id) }}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                        <a href="{{ url_for('admin.analyze', student_id=s.id) }}" class="btn btn-sm btn-outline-info" title="Analyze"><i class="bi bi-graph-up"></i></a>
+                        <a href="{{ url_for('admin.export_report', student_id=s.id) }}" class="btn btn-sm btn-outline-secondary" title="Report"><i class="bi bi-download"></i></a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="text-center text-muted py-4">No students registered yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

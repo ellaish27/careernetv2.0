@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ site_content.get('site_title', 'HCLV CareerNet') }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+
+    <style>
+        :root {
+            --sidebar-bg: {{ site_theme.get('primary-color', '#002147') }};
+            --accent-color: {{ site_theme.get('accent-color', '#D4AF37') }};
+            --font-family: {{ site_theme.get("font-family", "Segoe UI") }};
+            --body-bg: #f3f5f9;
+            --text-color: #1f2937;
+            --card-bg: #ffffff;
+            --muted-text: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+            --shadow-md: 0 10px 28px rgba(15, 23, 42, 0.08);
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --link-color: #1d4ed8;
+            --sidebar-text: rgba(255,255,255,0.88);
+            --sidebar-text-muted: rgba(255,255,255,0.68);
+            --sidebar-hover-bg: rgba(255,255,255,0.14);
+        }
+
+        {% if user_theme and user_theme.type == 'custom' %}
+            :root {
+                --sidebar-bg: {{ user_theme.bg }};
+                --accent-color: {{ site_theme.get('accent-color', '#D4AF37') }};
+                --font-family: {{ user_theme.font }};
+                --body-bg: {{ user_theme.bg }};
+                --text-color: {{ user_theme.text }};
+                --card-bg: transparent;
+                --muted-text: color-mix(in srgb, {{ user_theme.text }} 72%, transparent);
+                --border-color: color-mix(in srgb, {{ user_theme.text }} 22%, transparent);
+                --sidebar-text: {{ user_theme.text }};
+                --sidebar-text-muted: color-mix(in srgb, {{ user_theme.text }} 72%, transparent);
+                --sidebar-hover-bg: color-mix(in srgb, {{ user_theme.text }} 14%, transparent);
+            }
+            body { background-color: var(--body-bg); color: var(--text-color); }
+            .card { background-color: rgba(255,255,255,0.1); border-color: var(--text-color); }
+            .form-control, .form-select { background-color: rgba(0,0,0,0.2); color: var(--text-color); border-color: var(--text-color); }
+        {% elif user_theme and user_theme.type == 'dark' %}
+            body { background-color: #0b1220; color: #ffffff; }
+            :root {
+                --sidebar-bg: #070d18;
+                --card-bg: #0f172a;
+                --text-color: #ffffff;
+                --muted-text: rgba(255,255,255,0.74);
+                --border-color: rgba(255,255,255,0.10);
+                --link-color: #a5c9ff;
+                --sidebar-text: rgba(255,255,255,0.90);
+                --sidebar-text-muted: rgba(255,255,255,0.68);
+                --sidebar-hover-bg: rgba(255,255,255,0.12);
+            }
+            body {
+                background:
+                    radial-gradient(1000px 600px at 15% 10%, rgba(29,78,216,0.18), transparent 60%),
+                    radial-gradient(900px 560px at 90% 15%, rgba(212,175,55,0.12), transparent 58%),
+                    radial-gradient(900px 560px at 50% 95%, rgba(16,185,129,0.10), transparent 62%),
+                    #050814;
+                color: var(--text-color);
+            }
+            .topbar {
+                background: rgba(15, 23, 42, 0.70) !important;
+                border-bottom-color: var(--border-color) !important;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+            .card {
+                background: rgba(15, 23, 42, 0.72) !important;
+                border-color: var(--border-color) !important;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+            .sidebar {
+                background: linear-gradient(180deg, rgba(7, 13, 24, 0.95) 0%, rgba(7, 13, 24, 0.88) 100%) !important;
+                border-right: 1px solid rgba(255,255,255,0.08);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+            .sidebar-brand { background: rgba(255,255,255,0.04); }
+            .form-control, .form-select {
+                background: rgba(255,255,255,0.06);
+                color: var(--text-color);
+                border-color: rgba(255,255,255,0.14);
+            }
+            .form-control::placeholder { color: rgba(255,255,255,0.55); }
+            .table thead th { color: rgba(255,255,255,0.72); }
+            .table-light {
+                --bs-table-bg: rgba(255,255,255,0.06);
+                --bs-table-color: var(--text-color);
+            }
+            .alert {
+                background: rgba(255,255,255,0.06);
+                color: var(--text-color);
+                border-color: rgba(255,255,255,0.12);
+            }
+            .badge.bg-warning.text-dark { color: #0b1220 !important; }
+            .btn-outline-primary, .btn-outline-secondary {
+                color: var(--text-color);
+                border-color: rgba(255,255,255,0.22);
+            }
+            .btn-outline-primary:hover, .btn-outline-secondary:hover {
+                background: rgba(255,255,255,0.10);
+                border-color: rgba(255,255,255,0.26);
+            }
+        {% elif user_theme and user_theme.type == 'neon' %}
+            :root {
+                --sidebar-bg: #000000;
+                --accent-color: #0ff;
+                --text-color: #ffffff;
+                --muted-text: rgba(255,255,255,0.78);
+                --link-color: #67e8f9;
+                --sidebar-text: rgba(255,255,255,0.92);
+                --sidebar-text-muted: rgba(255,255,255,0.74);
+                --sidebar-hover-bg: rgba(255,255,255,0.16);
+            }
+        {% elif user_theme and user_theme.type == 'glass' %}
+            :root {
+                --body-bg: #050814;
+                --text-color: #ffffff;
+                --muted-text: rgba(255,255,255,0.78);
+                --border-color: rgba(255,255,255,0.14);
+                --card-bg: rgba(255,255,255,0.10);
+                --link-color: #93c5fd;
+                --sidebar-text: rgba(255,255,255,0.92);
+                --sidebar-text-muted: rgba(255,255,255,0.74);
+                --sidebar-hover-bg: rgba(255,255,255,0.16);
+            }
+            body { background: radial-gradient(1200px 700px at 20% 10%, rgba(212,175,55,0.20), transparent 60%), radial-gradient(900px 600px at 85% 20%, rgba(59,130,246,0.22), transparent 55%), radial-gradient(1000px 700px at 50% 90%, rgba(34,197,94,0.16), transparent 60%), #050814; color: var(--text-color); }
+            .card, .topbar {
+                background: var(--card-bg) !important;
+                border: 1px solid var(--border-color) !important;
+                backdrop-filter: blur(14px);
+                -webkit-backdrop-filter: blur(14px);
+            }
+            .sidebar {
+                background: rgba(255,255,255,0.08) !important;
+                border-right: 1px solid rgba(255,255,255,0.12);
+                backdrop-filter: blur(14px);
+                -webkit-backdrop-filter: blur(14px);
+            }
+            .sidebar-brand { background: rgba(255,255,255,0.06); }
+            .form-control, .form-select {
+                background: rgba(255,255,255,0.08);
+                color: var(--text-color);
+                border-color: rgba(255,255,255,0.18);
+            }
+            .form-control::placeholder { color: rgba(234,240,255,0.55); }
+            #theme-bg {
+                background:
+                    radial-gradient(420px 320px at var(--gx, 20%) var(--gy, 20%), rgba(212,175,55,0.26), transparent 60%),
+                    radial-gradient(520px 420px at calc(var(--gx, 20%) + 45%) calc(var(--gy, 20%) + 10%), rgba(59,130,246,0.26), transparent 60%),
+                    radial-gradient(520px 420px at calc(var(--gx, 20%) + 10%) calc(var(--gy, 20%) + 55%), rgba(34,197,94,0.18), transparent 65%);
+            }
+        {% elif user_theme and user_theme.type == 'aurora' %}
+            :root {
+                --body-bg: #071321;
+                --text-color: #ffffff;
+                --muted-text: rgba(255,255,255,0.78);
+                --border-color: rgba(255,255,255,0.14);
+                --card-bg: rgba(255,255,255,0.08);
+                --accent-color: #22c55e;
+                --link-color: #a5b4fc;
+                --sidebar-bg: #04101c;
+                --sidebar-text: rgba(255,255,255,0.92);
+                --sidebar-text-muted: rgba(255,255,255,0.74);
+                --sidebar-hover-bg: rgba(255,255,255,0.16);
+            }
+            body { background: radial-gradient(900px 520px at 10% 15%, rgba(99,102,241,0.28), transparent 60%), radial-gradient(900px 520px at 90% 20%, rgba(34,197,94,0.20), transparent 60%), radial-gradient(900px 520px at 50% 95%, rgba(14,165,233,0.20), transparent 60%), #061022; color: var(--text-color); }
+            .card, .topbar { background: var(--card-bg) !important; border: 1px solid var(--border-color) !important; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+            #theme-bg {
+                background:
+                    radial-gradient(520px 420px at var(--gx, 20%) var(--gy, 20%), rgba(99,102,241,0.34), transparent 62%),
+                    radial-gradient(620px 520px at calc(var(--gx, 20%) + 50%) calc(var(--gy, 20%) + 10%), rgba(34,197,94,0.26), transparent 62%),
+                    radial-gradient(560px 460px at calc(var(--gx, 20%) + 15%) calc(var(--gy, 20%) + 60%), rgba(14,165,233,0.24), transparent 66%);
+            }
+        {% elif user_theme and user_theme.type == 'sunset' %}
+            :root {
+                --body-bg: #160a1b;
+                --text-color: #ffffff;
+                --muted-text: rgba(255,255,255,0.78);
+                --border-color: rgba(255,255,255,0.14);
+                --card-bg: rgba(255,255,255,0.08);
+                --accent-color: #fb7185;
+                --link-color: #fda4af;
+                --sidebar-bg: #140715;
+                --sidebar-text: rgba(255,255,255,0.92);
+                --sidebar-text-muted: rgba(255,255,255,0.74);
+                --sidebar-hover-bg: rgba(255,255,255,0.16);
+            }
+            body { background: radial-gradient(900px 520px at 15% 15%, rgba(251,113,133,0.26), transparent 60%), radial-gradient(900px 520px at 85% 20%, rgba(250,204,21,0.18), transparent 58%), radial-gradient(900px 520px at 50% 95%, rgba(168,85,247,0.20), transparent 62%), #130513; color: var(--text-color); }
+            .card, .topbar { background: var(--card-bg) !important; border: 1px solid var(--border-color) !important; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+            #theme-bg {
+                background:
+                    radial-gradient(520px 420px at var(--gx, 20%) var(--gy, 20%), rgba(251,113,133,0.34), transparent 62%),
+                    radial-gradient(620px 520px at calc(var(--gx, 20%) + 50%) calc(var(--gy, 20%) + 12%), rgba(250,204,21,0.22), transparent 62%),
+                    radial-gradient(560px 460px at calc(var(--gx, 20%) + 18%) calc(var(--gy, 20%) + 62%), rgba(168,85,247,0.24), transparent 66%);
+            }
+        {% endif %}
+
+        body {
+            font-family: var(--font-family), Roboto, sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            line-height: 1.55;
+        }
+        a { color: var(--link-color); }
+        a:hover { filter: brightness(1.05); }
+        .text-muted { color: var(--muted-text) !important; }
+
+        /* Animated theme backdrop (Glass/Aurora/Sunset) */
+        #theme-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            filter: blur(18px) saturate(1.15);
+            opacity: 0;
+            transition: opacity 220ms ease;
+        }
+        body.theme-glass #theme-bg,
+        body.theme-aurora #theme-bg,
+        body.theme-sunset #theme-bg { opacity: 1; }
+
+        #water-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 220ms ease;
+        }
+        body.theme-glass #water-canvas { opacity: 0.38; }
+
+        #particle-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
+        }
+
+        /* --- SIDEBAR STYLING --- */
+        .sidebar {
+            position: fixed; top: 0; left: 0; width: 280px; height: 100vh;
+            background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--sidebar-bg) 100%);
+            padding-top: 0; z-index: 1040; transition: all 0.3s ease;
+            display: flex; flex-direction: column;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-brand { 
+            padding: 25px 20px; background: rgba(0,0,0,0.15); text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); 
+            flex-shrink: 0;
+        }
+        .sidebar-brand h3 { color: var(--accent-color); font-weight: 800; margin: 0; font-size: 1.4rem; }
+        
+        .sidebar-menu { 
+            padding: 20px 15px; 
+            flex-grow: 1; 
+            overflow-y: auto;
+        }
+        
+        .sidebar-menu a, .sidebar-menu .sidebar-link {
+            display: flex; align-items: center; padding: 11px 16px; color: var(--sidebar-text); text-decoration: none; margin-bottom: 4px; border-radius: 10px; transition: 0.2s; font-size: 0.93rem; font-weight: 500;
+        }
+        .sidebar-menu a i, .sidebar-menu .sidebar-link i { margin-right: 12px; color: var(--accent-color); font-size: 1.1rem; width: 20px; text-align: center; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background: var(--sidebar-hover-bg); color: #ffffff; }
+        
+        .sidebar-heading {
+            padding: 15px 20px 5px 20px; font-size: 0.75rem; letter-spacing: 0.5px; color: var(--sidebar-text-muted);
+        }
+
+        /* --- QUICK LINKS ACCORDION --- */
+        .collapse-indicator {
+            transition: transform 0.2s ease;
+            font-size: 0.9rem;
+        }
+        [aria-expanded="true"] .collapse-indicator {
+            transform: rotate(180deg);
+        }
+
+        .quick-links-horizontal {
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            margin-top: 8px;
+            padding: 8px 4px;
+        }
+
+        .quick-link-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            color: var(--accent-color);
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .quick-link-icon i {
+            margin: 0 !important;
+            font-size: 1.3rem;
+            width: auto !important;
+        }
+
+        .quick-link-icon:hover {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        /* Call Options Styling */
+        .call-options {
+            background: rgba(255,255,255,0.12);
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .call-options .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .call-options .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .collapse {
+            transition: height 0.25s ease, visibility 0.25s ease;
+        }
+
+        /* --- MAIN AREA --- */
+        .main-area { margin-left: 280px; min-height: 100vh; position: relative; z-index: 1; transition: margin-left 0.3s; }
+        .topbar { background: var(--card-bg); padding: 14px 32px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); backdrop-filter: blur(8px); }
+        .content-wrapper { padding: 24px 32px; }
+
+        .card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin-bottom: 22px; }
+        .card .card-header { background: transparent; border-bottom: 1px solid var(--border-color); border-top-left-radius: var(--radius-lg) !important; border-top-right-radius: var(--radius-lg) !important; }
+        .text-gold { color: var(--accent-color) !important; }
+        .form-control, .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            min-height: 40px;
+            box-shadow: none !important;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.18rem color-mix(in srgb, var(--accent-color) 22%, transparent) !important;
+        }
+        .btn {
+            border-radius: 10px;
+            font-weight: 600;
+            letter-spacing: .1px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--sidebar-bg), #1d4e89);
+            border: none;
+        }
+        .btn-primary:hover { filter: brightness(1.05); }
+        .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: var(--text-color);
+            --bs-table-border-color: var(--border-color);
+        }
+        .table thead th {
+            font-size: .78rem;
+            text-transform: uppercase;
+            color: var(--muted-text);
+            letter-spacing: .04em;
+        }
+        .alert {
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .page-header h4 { font-weight: 700; letter-spacing: .1px; }
+        .user-badge { color: var(--muted-text); border: 1px solid var(--border-color); }
+        .edit-mode-active .editable {
+            outline: 2px dashed #f59e0b;
+            outline-offset: 2px;
+            cursor: text;
+            transition: outline-color .2s ease;
+        }
+        .edit-mode-active .editable:focus {
+            outline-color: #22c55e;
+            background: rgba(255, 255, 0, 0.08);
+        }
+        
+        .login-body { background: var(--sidebar-bg); height: 100vh; overflow: hidden; }
+
+        @media (max-width: 991.98px) {
+            .sidebar { left: -280px; width: 280px; }
+            .sidebar.active { left: 0; }
+            .main-area { margin-left: 0; }
+            .mobile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1030; }
+            .mobile-overlay.active { display: block; }
+            .topbar, .content-wrapper { padding-left: 16px; padding-right: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    {% if user_theme and user_theme.type in ['glass', 'aurora', 'sunset'] %}
+    <div id="theme-bg" aria-hidden="true"></div>
+    <canvas id="water-canvas" aria-hidden="true"></canvas>
+    <script>document.body.classList.add('theme-{{ user_theme.type }}');</script>
+    {% endif %}
+
+    {% if current_user.is_authenticated and current_user.role == 'SuperUser' %}
+    <div id="su-edit-bar" style="position:fixed; top:0; width:100%; height:40px; background:#111; color:#fff; z-index:9999; display:flex; align-items:center; justify-content:space-between; padding:0 20px;">
+        <div><i class="bi bi-tools me-2"></i> SUPER USER MODE</div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="editModeSwitch" onchange="toggleEditMode()">
+            <label class="form-check-label" for="editModeSwitch">Live Edit</label>
+        </div>
+    </div>
+    <style>body { padding-top: 40px; }</style>
+    {% endif %}
+
+    {% if request.endpoint in ['auth.login', 'index', 'auth.register'] %}
+    <canvas id="particle-canvas"></canvas>
+    <div class="login-body">
+        <div class="container">
+            <div class="row justify-content-center align-items-center" style="height: 100vh;">
+                <div class="col-12 col-md-8 col-lg-5">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <div class="mb-3">
+                                {% for message in messages %}
+                                    <div class="alert alert-danger py-2 small">{{ message }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+
+    <div class="mobile-overlay" onclick="toggleSidebar()"></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="" width="80px">
+            <h3 class="mt-2 editable" data-key="site_title">{{ site_content.get('site_title', 'HCLV CareerNet') }}</h3>
+            {% if current_user.role == 'Student' and combination_code %}
+            <span class="badge bg-warning text-dark mt-1" style="font-size: 0.8em;">{{ combination_code }}</span>
+            {% endif %}
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="sidebar-heading text-uppercase">Quick Links</div>
+            
+            <!-- Quick Links Accordion -->
+            <div class="sidebar-section mb-3">
+                <a href="#" class="sidebar-link d-flex justify-content-between align-items-center" 
+                   data-bs-toggle="collapse" data-bs-target="#quickLinksContent" 
+                   aria-expanded="false" aria-controls="quickLinksContent">
+                    <span><i class="bi bi-lightning-fill me-2"></i> Quick Links</span>
+                    <i class="bi bi-chevron-down collapse-indicator"></i>
+                </a>
+                
+                <div class="collapse" id="quickLinksContent">
+                    <div class="quick-links-horizontal d-flex justify-content-around py-2 px-1">
+                        <a href="https://holycross-lakeview.sc.ug" target="_blank" class="quick-link-icon" title="School Website">
+                            <i class="bi bi-globe2"></i>
+                        </a>
+                        <a href="mailto:infor@holycross-lakeview.sc.ug" class="quick-link-icon" title="School Email">
+                            <i class="bi bi-envelope-at-fill"></i>
+                        </a>
+                        <!-- Phone triggers nested collapse -->
+                        <a href="#" class="quick-link-icon" data-bs-toggle="collapse" data-bs-target="#callOptionsCollapse" aria-expanded="false" title="Call Us">
+                            <i class="bi bi-telephone-fill"></i>
+                        </a>
+                        <a href="https://wa.me/256707555304" target="_blank" class="quick-link-icon" title="WhatsApp">
+                            <i class="bi bi-whatsapp"></i>
+                        </a>
+                    </div>
+                    
+                    <!-- Call Options (MTN & Airtel) -->
+                    <div class="collapse" id="callOptionsCollapse">
+                        <div class="call-options">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="tel:+256789599146" class="btn btn-outline-success flex-fill py-2">
+                                    <i class="bi bi-phone me-1"></i> MTN
+                                </a>
+                                <a href="tel:+256707555304" class="btn btn-outline-danger flex-fill py-2">
+                                    <i class="bi bi-phone me-1"></i> Airtel
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-heading text-uppercase">Menu</div>
+
+            {% if current_user.role == 'Student' %}
+                <a href="{{ url_for('student.portal') }}" class="sidebar-link {% if request.endpoint == 'student.portal' %}active{% endif %}">
+                    <i class="bi bi-grid-1x2-fill"></i> My Dashboard
+                </a>
+                
+                <div class="sidebar-heading text-muted small mb-2 mt-3 ps-3 text-uppercase">Academics</div>
+                <a href="{{ url_for('student.tracker') }}" class="sidebar-link {% if request.endpoint == 'student.tracker' %}active{% endif %}">
+                    <i class="bi bi-graph-up-arrow"></i> Journey Tracker
+                </a>
+                <a href="{{ url_for('student.weighting_system') }}" class="sidebar-link {% if request.endpoint == 'student.weighting_system' %}active{% endif %}">
+                    <i class="bi bi-calculator-fill"></i> Weighting System
+                </a>
+
+                <div class="sidebar-heading text-muted small mb-2 mt-3 ps-3 text-uppercase">Guidance</div>
+                <a href="{{ url_for('student.how_to_apply') }}" class="sidebar-link {% if request.endpoint == 'student.how_to_apply' %}active{% endif %}">
+                    <i class="bi bi-file-earmark-text-fill"></i> How to Apply
+                </a>
+                <a href="{{ url_for('student.about_institutions') }}" class="sidebar-link {% if request.endpoint == 'student.about_institutions' %}active{% endif %}">
+                    <i class="bi bi-bank2"></i> Institutions
+                </a>
+                <a href="{{ url_for('student.about_careers') }}" class="sidebar-link {% if request.endpoint == 'student.about_careers' %}active{% endif %}">
+                    <i class="bi bi-people-fill"></i> Careers Office
+                </a>
+
+                <div class="sidebar-heading text-muted small mb-2 mt-3 ps-3 text-uppercase">Account</div>
+                <a href="{{ url_for('student.settings') }}" class="sidebar-link {% if request.endpoint == 'student.settings' %}active{% endif %}">
+                    <i class="bi bi-gear-fill"></i> Settings
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="sidebar-link text-danger">
+                    <i class="bi bi-box-arrow-left"></i> Logout
+                </a>
+
+            {% elif current_user.role == 'SuperUser' %}
+                <a href="{{ url_for('su.dashboard') }}" class="sidebar-link"> <i class="bi bi-shield-lock"></i> SU Dashboard </a>
+                <a href="{{ url_for('su.manage_universities') }}" class="sidebar-link"> <i class="bi bi-bank2"></i>Universities</a>
+                <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link"> <i class="bi bi-people"></i> View Students </a>
+                
+                <div class="sidebar-heading text-muted small mb-2 mt-3 ps-3 text-uppercase">Account</div>
+                <a href="{{ url_for('student.settings') }}" class="sidebar-link"> <i class="bi bi-gear-fill"></i> Settings </a>
+                 <a href="{{ url_for('auth.logout') }}" class="sidebar-link text-danger">
+                    <i class="bi bi-box-arrow-left"></i> Logout
+                </a>
+
+            {% else %}
+                <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}"> <i class="bi bi-speedometer2"></i> Dashboard </a>
+                <a href="{{ url_for('admin.create_admin') }}" class="sidebar-link"> <i class="bi bi-person-plus-fill"></i> Add Admin </a>
+                
+                <div class="sidebar-heading text-muted small mb-2 mt-3 ps-3 text-uppercase">Account</div>
+                <a href="{{ url_for('student.settings') }}" class="sidebar-link"> <i class="bi bi-gear-fill"></i> Settings </a>
+                <a href="{{ url_for('auth.logout') }}" class="sidebar-link text-danger">
+                    <i class="bi bi-box-arrow-left"></i> Logout
+                </a>
+            {% endif %}
+
+            {% if custom_pages %}
+            <div class="sidebar-heading text-muted small mb-2 mt-3 ps-3 text-uppercase">More</div>
+            <div class="sidebar-section mb-1">
+                <a href="#" class="sidebar-link d-flex justify-content-between align-items-center"
+                   data-bs-toggle="collapse" data-bs-target="#morePagesContent"
+                   aria-expanded="false" aria-controls="morePagesContent">
+                    <span><i class="bi bi-grid-3x3-gap-fill me-2"></i> More</span>
+                    <i class="bi bi-chevron-down collapse-indicator"></i>
+                </a>
+                <div class="collapse" id="morePagesContent">
+                    <div class="ps-2">
+                        {% for p in custom_pages %}
+                        <a href="{{ url_for('view_custom_page', slug=p.slug) }}"
+                           class="sidebar-link {% if request.endpoint == 'view_custom_page' and request.view_args and request.view_args.slug == p.slug %}active{% endif %}">
+                            <i class="bi bi-file-earmark-text"></i> {{ p.title }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="main-area">
+        <div class="topbar">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-link d-lg-none me-3 p-0" onclick="toggleSidebar()" style="color: var(--text-color);">
+                    <i class="bi bi-list fs-3"></i>
+                </button>
+                <div class="page-header">
+                    <h4 class="mb-0">{% block page_title %}Dashboard{% endblock %}</h4>
+                </div>
+            </div>
+            <div class="d-flex align-items-center">
+                <span class="user-badge d-none d-md-inline-block bg-light bg-opacity-10 px-3 py-1 rounded-pill">
+                    <i class="bi bi-person-circle me-1"></i> {{ current_user.username }}
+                </span>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-success py-2">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block app_content %}{% endblock %}
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+    <script>
+        const SITE_CONTENT = {{ site_content|tojson }};
+
+        // Particle background for auth pages
+        {% if request.endpoint in ['auth.login', 'index', 'auth.register'] %}
+        const canvas = document.getElementById('particle-canvas');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            let particles = [];
+            const particleCount = 50;
+            
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.speedX = (Math.random() - 0.5) * 0.5;
+                    this.speedY = (Math.random() - 0.5) * 0.5;
+                    this.opacity = Math.random() * 0.5 + 0.2;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+                }
+                draw() {
+                    ctx.fillStyle = `rgba(212, 175, 55, ${this.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            function init() {
+                for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+            }
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                requestAnimationFrame(animate);
+            }
+            init(); animate();
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+        {% endif %}
+
+        // Sidebar toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.mobile-overlay').classList.toggle('active');
+        }
+
+        // Animated backdrops (Glass/Aurora/Sunset) + water effect for glass
+        (function initThemeAnim() {
+            const themed = document.body.classList.contains('theme-glass') || document.body.classList.contains('theme-aurora') || document.body.classList.contains('theme-sunset');
+            if (!themed) return;
+
+            const bg = document.getElementById('theme-bg');
+            if (!bg) return;
+
+            let mx = 0.2, my = 0.2; // 0..1
+            window.addEventListener('mousemove', (e) => {
+                mx = e.clientX / Math.max(1, window.innerWidth);
+                my = e.clientY / Math.max(1, window.innerHeight);
+            }, { passive: true });
+
+            const start = performance.now();
+            function tick(now) {
+                const t = (now - start) / 1000;
+                const driftX = 0.10 * Math.sin(t * 0.55);
+                const driftY = 0.10 * Math.cos(t * 0.42);
+                const gx = Math.min(0.95, Math.max(0.05, mx + driftX));
+                const gy = Math.min(0.95, Math.max(0.05, my + driftY));
+                bg.style.setProperty('--gx', `${Math.round(gx * 100)}%`);
+                bg.style.setProperty('--gy', `${Math.round(gy * 100)}%`);
+                requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        })();
+
+        (function initGlassWater() {
+            if (!document.body.classList.contains('theme-glass')) return;
+            const canvas = document.getElementById('water-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) return;
+
+            const drops = [];
+            const maxDrops = 90;
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            resize();
+            window.addEventListener('resize', resize, { passive: true });
+
+            function spawn() {
+                if (drops.length >= maxDrops) return;
+                drops.push({
+                    x: Math.random() * canvas.width,
+                    y: -20 - Math.random() * canvas.height * 0.3,
+                    len: 80 + Math.random() * 180,
+                    w: 1 + Math.random() * 1.2,
+                    v: 140 + Math.random() * 260,
+                    a: 0.08 + Math.random() * 0.12
+                });
+            }
+            for (let i = 0; i < 50; i++) spawn();
+
+            let last = performance.now();
+            function draw(now) {
+                const dt = Math.min(0.033, (now - last) / 1000);
+                last = now;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.globalCompositeOperation = 'lighter';
+
+                // subtle vertical streaks
+                for (let i = 0; i < 2; i++) spawn();
+                for (const d of drops) {
+                    d.y += d.v * dt;
+                    const grad = ctx.createLinearGradient(d.x, d.y, d.x, d.y + d.len);
+                    grad.addColorStop(0, `rgba(255,255,255,0)`);
+                    grad.addColorStop(0.25, `rgba(255,255,255,${d.a})`);
+                    grad.addColorStop(1, `rgba(255,255,255,0)`);
+                    ctx.strokeStyle = grad;
+                    ctx.lineWidth = d.w;
+                    ctx.beginPath();
+                    ctx.moveTo(d.x, d.y);
+                    ctx.lineTo(d.x, d.y + d.len);
+                    ctx.stroke();
+                }
+                // recycle
+                for (let i = drops.length - 1; i >= 0; i--) {
+                    if (drops[i].y > canvas.height + 220) drops.splice(i, 1);
+                }
+
+                ctx.globalCompositeOperation = 'source-over';
+                requestAnimationFrame(draw);
+            }
+            requestAnimationFrame(draw);
+        })();
+
+        function liveTextKey(pathname, index) {
+            return `page_text::${pathname}::${index}`;
+        }
+
+        function collectLiveTextNodes() {
+            const path = window.location.pathname || '/';
+            const excluded = '#su-edit-bar, .sidebar, .topbar, script, style, noscript, textarea, input, select, option';
+            const candidates = Array.from(document.querySelectorAll('h1,h2,h3,h4,h5,h6,p,span,li,a,small,strong,em,td,th,button,label,blockquote'))
+                .filter(el => !el.closest(excluded))
+                .filter(el => el.childElementCount === 0)
+                .filter(el => (el.textContent || '').trim().length > 0);
+
+            return candidates.map((el, idx) => {
+                const key = liveTextKey(path, idx);
+                el.dataset.liveKey = key;
+                return { el, key };
+            });
+        }
+
+        function applySavedLiveText() {
+            collectLiveTextNodes().forEach(({ el, key }) => {
+                const saved = SITE_CONTENT[key];
+                if (typeof saved === 'string' && saved.length > 0) {
+                    el.textContent = saved;
+                }
+            });
+        }
+
+        applySavedLiveText();
+
+        // Live Edit Mode for SuperUser
+        function toggleEditMode() {
+            const isActive = document.body.classList.toggle('edit-mode-active');
+            const allEditable = collectLiveTextNodes().map(x => x.el);
+            document.querySelectorAll('.editable').forEach(el => {
+                if (!allEditable.includes(el)) allEditable.push(el);
+            });
+
+            allEditable.forEach(el => {
+                el.contentEditable = isActive;
+                el.classList.toggle('edit-highlight', isActive);
+                if (isActive) {
+                    el.dataset.original = el.innerText.trim();
+                } else {
+                    el.contentEditable = false;
+                }
+            });
+
+            if (!isActive) {
+                const payload = {};
+                allEditable.forEach(el => {
+                    const key = el.dataset.key || el.dataset.liveKey;
+                    const current = (el.innerText || '').trim();
+                    const original = (el.dataset.original || '').trim();
+                    if (key && current !== original) payload[key] = current;
+                });
+
+                if (Object.keys(payload).length) {
+                    fetch('/su/save_content', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(r => r.json())
+                    .then(r => {
+                        if (r.status === 'success') window.location.reload();
+                    })
+                    .catch(err => console.error('Save failed:', err));
+                }
+            }
+        }
+
+        // Close sidebar on mobile when clicking a link
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 992) {
+                    document.getElementById('sidebar').classList.remove('active');
+                    document.querySelector('.mobile-overlay')?.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

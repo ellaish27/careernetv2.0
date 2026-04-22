@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block app_content %}
+
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Edit Student: {{ student.name }}</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <!-- Basic Info -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="name" value="{{ student.name }}" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Gender</label>
+                    <select name="gender" class="form-select">
+                        <option value="M" {% if student.gender == 'M' %}selected{% endif %}>Male</option>
+                        <option value="F" {% if student.gender == 'F' %}selected{% endif %}>Female</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Combination</label>
+                    <input type="text" name="combination" value="{{ student.combination }}" class="form-control" required>
+                </div>
+            </div>
+
+            <!-- O-Level Results (Pre-filled) -->
+            <div class="mb-4">
+                <h6 class="border-bottom pb-2 mb-3">O-Level Results (UCE)</h6>
+                <div id="o-levels">
+                    {% for sub, grade in o_data.items() %}
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <input type="text" name="o_sub" value="{{ sub }}" class="form-control" placeholder="Subject">
+                        </div>
+                        <div class="col-3">
+                            <input type="text" name="o_grade" value="{{ grade }}" class="form-control" placeholder="Grade">
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <!-- Add empty rows for new O-Level entries if needed -->
+                </div>
+            </div>
+
+            <!-- A-Level Results (The part to fill later) -->
+            <div class="mb-4">
+                <h6 class="border-bottom pb-2 mb-3">A-Level Results (UACE) - Fill when available</h6>
+                <div id="a-levels">
+                    {% for sub, grade in a_data.items() %}
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <input type="text" name="a_sub" value="{{ sub }}" class="form-control" placeholder="Subject">
+                        </div>
+                        <div class="col-3">
+                            <input type="text" name="a_grade" value="{{ grade }}" class="form-control" placeholder="Grade">
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- Show 3 empty rows if no A-level data exists yet -->
+                    {% for i in range(3) %}
+                    <div class="row mb-2">
+                        <div class="col-6">
+                            <input type="text" name="a_sub" class="form-control" placeholder="Subject">
+                        </div>
+                        <div class="col-3">
+                            <input type="text" name="a_grade" class="form-control" placeholder="Grade">
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Subsidiaries Passed (e.g., General Paper, Sub-ICT)</label>
+                <input type="number" name="subsidiaries" value="{{ student.subsidiaries }}" class="form-control" style="width: 100px;">
+            </div>
+
+            <button type="submit" class="btn btn-success">Update Record</button>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

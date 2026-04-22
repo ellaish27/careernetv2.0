@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block page_title %}Weighting System{% endblock %}
+{% block app_content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-transparent">
+        <h4 class="mb-0"><i class="bi bi-calculator-fill me-2 text-gold"></i>The Weighting System</h4>
+    </div>
+    <div class="card-body">
+        <p>Admission to public universities in Uganda is determined by a weighted points system. Below is a breakdown of how points are calculated.</p>
+
+        <h5 class="mt-4 text-primary">1. A'Level Weighting</h5>
+        <p>Your A-Level subjects are categorized into three groups:</p>
+        
+        <table class="table table-bordered">
+            <thead class="bg-light">
+                <tr>
+                    <th>Category</th>
+                    <th>Weight Factor</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Essential</strong></td>
+                    <td><span class="badge bg-danger">x3</span></td>
+                    <td>Core subjects required for the course (usually 2 best subjects). Points: A=6, B=5, C=4, D=3, E=2, O=1, F=0.</td>
+                </tr>
+                <tr>
+                    <td><strong>Relevant</strong></td>
+                    <td><span class="badge bg-warning text-dark">x2</span></td>
+                    <td>Subjects related to the course but not essential. The best subject is taken.</td>
+                </tr>
+                <tr>
+                    <td><strong>Desirable</strong></td>
+                    <td><span class="badge bg-success">x1</span></td>
+                    <td>Subjects that give a general advantage (e.g., General Paper, Sub-Maths).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="alert alert-info mt-3">
+            <strong>Example Calculation (Engineering):</strong><br>
+            Essential: Math (A=6) + Physics (B=5) = 11 pts.<br>
+            Weight: 11 x 3 = <strong>33 Weight Points</strong>.
+        </div>
+
+        <h5 class="mt-4 text-primary">2. O'Level Weighting</h5>
+        <p>O-Level results contribute a bonus to your total score.</p>
+        
+        <table class="table table-sm table-bordered">
+            <thead class="bg-light">
+                <tr>
+                    <th>Grade</th>
+                    <th>1 / A-B</th>
+                    <th>2 / C-D</th>
+                    <th>3-6 / E-F</th>
+                    <th>7-9 / F</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Weight</td>
+                    <td>0.3</td>
+                    <td>0.2</td>
+                    <td>0.1</td>
+                    <td>0.0</td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="small text-muted">The aggregate is calculated from the best 10 subjects.</p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block app_content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-white">Register Student Profile</div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('admin.add_student') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Gender</label>
+                    <select name="gender" class="form-select">
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Combination</label>
+                    <input type="text" name="combination" class="form-control" placeholder="e.g. PCM/ICT">
+                </div>
+            </div>
+
+            <h6 class="text-primary mt-4">A-Level Subjects</h6>
+            <div id="a-level-container" class="mb-3">
+                <div class="row g-2">
+                    {% for i in range(1, 4) %}
+                    <div class="col-md-6">
+                        <input type="text" name="a_sub_{{ i }}" class="form-control form-control-sm" placeholder="Subject {{ i }}">
+                        <select name="a_grade_{{ i }}" class="form-select form-select-sm mt-1">
+                            <option value="N/A">N/A</option>
+                            {% for g in ['A','B','C','D','E','O','F'] %}
+                            <option value="{{ g }}">{{ g }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <h6 class="text-primary">O-Level Subjects (Best 10)</h6>
+            <div id="o-level-container" class="mb-3">
+                <div class="row g-2">
+                    {% for i in range(1, 11) %}
+                    <div class="col-md-4">
+                        <input type="text" name="o_sub_{{ i }}" class="form-control form-control-sm" placeholder="Subject {{ i }}">
+                        <select name="o_grade_{{ i }}" class="form-select form-select-sm mt-1">
+                            <option value="N/A">N/A</option>
+                            {% for g in ['1','2','3','4','5','6','7','8','9'] %}
+                            <option value="{{ g }}">{{ g }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">Save Student</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

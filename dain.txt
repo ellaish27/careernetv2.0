@@ -1,0 +1,3 @@
+This is nice but where will the student type in the marks (type=integers)
+
+the lets add quick links on the sidebar, just before "My Dashboard". When the quick links button is clicked, it dropdown icons which are linked to: the school website (holycross-lakeview.sc.ug), schoolemail (infor@holycross-lakeview.sc.ug), Call two options {'MTN':'+256 789 599 146', 'Airtel':'+256 707 555 304'}, Whatsapp (+256 707 555 304)

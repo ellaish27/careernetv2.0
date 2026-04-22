@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Holy Cross Lake View - Careers Office</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #002147;
+            --accent-color: #D4AF37;
+            --light-gold: #F4E8C1;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            color: #333;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #003366 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            width: 100%;
+            padding: 80px 0;
+        }
+
+        .school-logo {
+            width: 140px;
+            height: 140px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.4);
+        }
+
+        .school-logo img {
+            width: 110px;
+            height: 110px;
+            object-fit: contain;
+        }
+
+        .hero-title {
+            color: white;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .hero-subtitle {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .hero-description {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.15rem;
+            max-width: 750px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+
+        .btn-get-started {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            padding: 16px 55px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-radius: 50px;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-get-started:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(212, 175, 55, 0.6);
+            background-color: #E5C158;
+            color: var(--primary-color);
+        }
+
+        /* Slideshow Section */
+        .slideshow-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .about-image {
+            position: relative;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .about-slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,33,71,0.15);
+            background: #e9ecef;
+        }
+
+        .about-slide {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            opacity: 0;
+            will-change: transform, opacity, filter;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* 10 Random Transitions */
+        /* 1. Fade */
+        .transition-fade { transition: opacity 1.2s ease-in-out; }
+        .transition-fade.active { opacity: 1; }
+
+        /* 2. Slide Left */
+        .transition-slide-left { transform: translateX(100%); transition: transform 0.8s ease-out, opacity 0.8s ease; }
+        .transition-slide-left.active { transform: translateX(0); opacity: 1; }
+
+        /* 3. Slide Up */
+        .transition-slide-up { transform: translateY(100%); transition: transform 0.8s ease-out, opacity 0.8s ease; }
+        .transition-slide-up.active { transform: translateY(0); opacity: 1; }
+
+        /* 4. Zoom In */
+        .transition-zoom-in { transform: scale(1.4); transition: transform 1.2s ease-out, opacity 1s ease; }
+        .transition-zoom-in.active { transform: scale(1); opacity: 1; }
+
+        /* 5. Zoom Out */
+        .transition-zoom-out { transform: scale(0.7); transition: transform 1.2s ease-out, opacity 1s ease; }
+        .transition-zoom-out.active { transform: scale(1); opacity: 1; }
+
+        /* 6. Flip Horizontal */
+        .transition-flip-h { transform: perspective(1000px) rotateY(90deg); transform-origin: right center; transition: transform 0.9s ease-in-out, opacity 0.9s ease; }
+        .transition-flip-h.active { transform: perspective(1000px) rotateY(0); opacity: 1; }
+
+        /* 7. Blur Reveal */
+        .transition-blur { filter: blur(12px); transition: filter 1s ease-out, opacity 1s ease; }
+        .transition-blur.active { filter: blur(0); opacity: 1; }
+
+        /* 8. Rotate In */
+        .transition-rotate { transform: scale(0.8) rotate(10deg); transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.8s ease; }
+        .transition-rotate.active { transform: scale(1) rotate(0); opacity: 1; }
+
+        /* 9. Ken Burns */
+        .transition-kenburns { transform: scale(1.15) translate(-3%, -3%); transition: transform 5s linear, opacity 1s ease; }
+        .transition-kenburns.active { transform: scale(1) translate(0, 0); opacity: 1; }
+
+        /* 10. Elastic Pop */
+        .transition-elastic { transform: scale(0.5); transition: transform 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55), opacity 0.7s ease; }
+        .transition-elastic.active { transform: scale(1); opacity: 1; }
+
+        /* Features Section */
+        .features-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .feature-card {
+            background: #fff;
+            padding: 35px 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            height: 100%;
+            text-align: center;
+            border: 1px solid #f0f0f0;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+            border-color: var(--accent-color);
+        }
+
+        .feature-icon {
+            width: 75px;
+            height: 75px;
+            background: var(--light-gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .feature-title {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .feature-text {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* About Section */
+        .about-section {
+            padding: 80px 0;
+            background: linear-gradient(to right, #f8f9fa, #ffffff);
+        }
+
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .about-text { flex: 1; }
+        .about-image-col { flex: 1; }
+
+        .about-text h2 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .about-text p {
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 40px;
+            margin-top: 35px;
+            border-top: 2px solid #eee;
+            padding-top: 30px;
+        }
+
+        .stat-item { text-align: center; }
+
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            display: block;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #003366 100%);
+            padding: 100px 0;
+            text-align: center;
+            color: white;
+        }
+
+        .cta-section h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .cta-section p {
+            font-size: 1.25rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Footer */
+        .footer {
+            background: #0a192f;
+            color: rgba(255,255,255,0.7);
+            padding: 60px 0 30px;
+        }
+
+        .footer h5 {
+            color: white;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .footer-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--accent-color); }
+
+        .copyright {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .about-content { flex-direction: column; }
+            .about-image-col { order: 2; }
+            .about-text { order: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .hero-subtitle { font-size: 1.4rem; }
+            .about-slideshow-container { height: 300px; }
+            .stats-row { flex-direction: column; gap: 20px; }
+            .section-title { font-size: 2rem; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeInUp 0.8s ease-out; }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container hero-content">
+            <div class="animate-fade-in">
+                <div class="school-logo">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="HCLV Logo">
+                </div>
+                <h1 class="hero-title editable" data-key="landing_hero_title">{{ site_content.get('landing_hero_title', 'Holy Cross Lake View') }}</h1>
+                <p class="hero-subtitle editable" data-key="landing_hero_subtitle">{{ site_content.get('landing_hero_subtitle', 'Education for Service') }}</p>
+                <p class="hero-description editable" data-key="landing_hero_description">
+                    {{ site_content.get('landing_hero_description', 'Welcome to the Careers Office. We are dedicated to forming global citizens with the competence to see and courage to act. Discover your potential and plan your future.') }}
+                </p>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-get-started">
+                    Get Started <i class="bi bi-arrow-right-circle-fill ms-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slideshow Section (Visual Placeholder for School Life) -->
+    <section class="slideshow-section">
+        <div class="container">
+            <h2 class="section-title editable" data-key="landing_life_title">{{ site_content.get('landing_life_title', 'Life at Holy Cross') }}</h2>
+            <p class="section-subtitle editable" data-key="landing_life_subtitle">{{ site_content.get('landing_life_subtitle', 'Experience our vibrant learning community') }}</p>
+            
+            <div class="about-image">
+                <div class="about-slideshow-container" id="aboutSlideshow">
+                    <!-- Slides injected via JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-title editable" data-key="landing_services_title">{{ site_content.get('landing_services_title', 'Our Career Guidance Services') }}</h2>
+            <p class="section-subtitle editable" data-key="landing_services_subtitle">{{ site_content.get('landing_services_subtitle', 'Empowering students to discover their potential and plan their future') }}</p>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-compass"></i></div>
+                        <h3 class="feature-title">Career Exploration</h3>
+                        <p class="feature-text">Identify passions and explore diverse career paths with personalized guidance.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-mortarboard"></i></div>
+                        <h3 class="feature-title">University Partnerships</h3>
+                        <p class="feature-text">Sessions at leading universities like Makerere, exposing students to opportunities.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                        <h3 class="feature-title">Academic Tracking</h3>
+                        <p class="feature-text">Monitor performance across terms to stay on course for career goals.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-laptop"></i></div>
+                        <h3 class="feature-title">Course Selection</h3>
+                        <p class="feature-text">Access detailed info on courses, requirements, and career prospects.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-people"></i></div>
+                        <h3 class="feature-title">Alumni Mentorship</h3>
+                        <p class="feature-text">Connect with successful alumni for career advice and networking.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-trophy"></i></div>
+                        <h3 class="feature-title">Excellence Focus</h3>
+                        <p class="feature-text">Ranked #1 in Eastern Uganda and #26 nationally. We prepare you for success.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section" style="text-align: center;">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2 class="editable" data-key="landing_about_title">{{ site_content.get('landing_about_title', 'About Holy Cross Lake View') }}</h2>
+                    <p class="editable" data-key="landing_about_p1">
+                        {{ site_content.get('landing_about_p1', 'Founded in 1993 by the late Fr. Bob Hesse and the Congregation of Holy Cross Priests and Brothers, Holy Cross Lake View S.S.S has grown to become a leading value-based Catholic institution in Eastern Uganda.') }}
+                    </p>
+                    <p class="editable" data-key="landing_about_p2">
+                        {{ site_content.get('landing_about_p2', 'Located in Musiima Village, Wanyange (Jinja), our school embodies the motto "Education for Service" - forming global citizens with competence to see and courage to act.') }}
+                    </p>
+                    <p class="editable" data-key="landing_about_p3">
+                        {{ site_content.get('landing_about_p3', 'Our Careers Office helps students identify their passions, explore career opportunities, and make informed decisions through dedicated mentorship and comprehensive guidance.') }}
+                    </p>
+                    
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <span class="stat-number editable" data-key="landing_stat_1_value" id="counter" data-target="30">{{ site_content.get('landing_stat_1_value', '30+') }}</span>
+                            <span class="stat-label editable" data-key="landing_stat_1_label">{{ site_content.get('landing_stat_1_label', 'Years of Excellence') }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number editable" data-key="landing_stat_2_value">{{ site_content.get('landing_stat_2_value', '#1') }}</span>
+                            <span class="stat-label editable" data-key="landing_stat_2_label">{{ site_content.get('landing_stat_2_label', 'In Eastern Region') }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number editable" data-key="landing_stat_3_value">{{ site_content.get('landing_stat_3_value', '1993') }}</span>
+                            <span class="stat-label editable" data-key="landing_stat_3_label">{{ site_content.get('landing_stat_3_label', 'Year Founded') }}</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="about-image-col">
+                   Image is handled by the slideshow above, or we can add a static image here if preferred -->
+                    <!-- The slideshow from the section above serves this visual purpose -->
+                </div> 
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="editable" data-key="landing_cta_title">{{ site_content.get('landing_cta_title', 'Ready to Begin Your Journey?') }}</h2>
+            <p class="editable" data-key="landing_cta_text">{{ site_content.get('landing_cta_text', 'Join us in shaping your future and becoming a leader of tomorrow') }}</p>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-get-started">
+                Access Careers Portal <i class="bi bi-box-arrow-in-right ms-2"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-5 mb-4">
+                    <h5>Holy Cross Lake View S.S.S</h5>
+                    <p class="mb-1"><i class="bi bi-geo-alt-fill me-2"></i><a href="https://maps.app.goo.gl/y2oCCZJV3kaK8GnY6" style="color: white; text-decoration: none;" target="_blank"> Musiima Village, Wanyange, Jinja</a></p>
+                    <p class="mb-1"><i class="bi bi-envelope-fill me-2"></i><a href="info@holycross-lakeview.sc.ug" style="color: white; text-decoration: none;">info@holycross-lakeview.sc.ug</a></p>
+                    <p class="mb-0"><i class="bi bi-telephone-fill me-2"></i><a href="tel:+256 789 599 146" style="color: white; text-decoration: none;">+256 789 599 146</a></p>
+                </div>
+                <div class="col-md-3 mb-4 footer-links">
+                    <h5>Quick Links</h5>
+                    <a href="{{ url_for('auth.login') }}">Login Portal</a>
+                    <a href="{{ url_for('auth.register') }}">Student Registration</a>
+                    <a href="https://holycross-lakeview.sc.ug" target="_blank">Official Website</a>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>System by;</h5>
+                    <p class="small">
+                        <p>Cherop Kepha Siya, S.6 Physicals @2026 <i>(CKS-Tech)</i></p>
+                        <p>Daniel Mukisa, S.6 Physicals @2026 <i>(D@in Corp)</i></p>
+                    </p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p class="mb-0">&copy; {{ now.year if now else '2026' }}. Made by <a href="mailto:kephache55@gmail.com?subject=From%20HCLVCareernet" target="_blank" style="color: white; text-decoration: none;">CKS-Tech</a> & <a href="mailto:ellaish27@gmail.com?subject=From%20HCLVCareernet" target="_blank" style="color: white; text-decoration: none;">D@in Corp. </a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const aboutContainer = document.getElementById('aboutSlideshow');
+            if (!aboutContainer) return;
+
+            // 4 Images as placeholders (Update filenames in /static/school/ as needed)
+            const aboutImages = [
+                '{{ url_for("static", filename="school/school1.jpg") }}',
+                '{{ url_for("static", filename="school/school2.jpg") }}',
+                '{{ url_for("static", filename="school/school3.webp") }}',
+                '{{ url_for("static", filename="school/school4.jpg") }}'
+            ];
+
+            const transitions = [
+                'fade', 'slide-left', 'slide-up', 'zoom-in', 'zoom-out', 
+                'flip-h', 'blur', 'rotate', 'kenburns', 'elastic'
+            ];
+            
+            let currentTransition = 'fade';
+            let currentIndex = 0;
+
+            // Create slide elements
+            aboutImages.forEach((src, i) => {
+                const slide = document.createElement('div');
+                slide.className = 'about-slide transition-fade';
+                slide.style.backgroundImage = `url(${src})`;
+                if (i === 0) slide.classList.add('active');
+                aboutContainer.appendChild(slide);
+            });
+
+            function getRandomTransition() {
+                const available = transitions.filter(t => t !== currentTransition);
+                currentTransition = available[Math.floor(Math.random() * available.length)];
+                return currentTransition;
+            }
+
+            function nextSlide() {
+                const slides = aboutContainer.querySelectorAll('.about-slide');
+                if (slides.length === 0) return;
+
+                slides[currentIndex].classList.remove('active');
+                const nextIndex = (currentIndex + 1) % slides.length;
+                const trans = getRandomTransition();
+                
+                slides[nextIndex].className = `about-slide transition-${trans} active`;
+                currentIndex = nextIndex;
+            }
+
+            // Auto-advance every 5 seconds
+            setInterval(nextSlide, 5000);
+        });
+        const counterElement = document.getElementById('counter');
+    const targetValue = parseInt(counterElement.getAttribute('data-target'));
+    let currentValue = 0;
+
+    const duration = 2000; 
+    const frameDuration = 1000 / 60; 
+    const totalFrames = Math.round(duration / frameDuration);
+    const increment = targetValue / totalFrames;
+
+    const animate = () => {
+        currentValue += increment;
+        if (currentValue < targetValue) {
+            counterElement.innerText = Math.ceil(currentValue);
+            requestAnimationFrame(animate);
+        } else {
+            // Appends the plus sign once the target is reached
+            counterElement.innerText = targetValue + "+";
+        }
+    };
+
+    animate();
+    </script>
+</body>
+</html>

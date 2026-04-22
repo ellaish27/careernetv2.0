@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block page_title %}Journey Tracker{% endblock %}
+
+{% block app_content %}
+<div class="container-fluid">
+    {% if su_preview %}
+    <div class="alert alert-warning border-0 shadow-sm">
+        <strong>SuperUser Preview Mode:</strong> You can live-edit global text on this page, but student grade submission is disabled here.
+    </div>
+    {% endif %}
+    
+    <!-- ========================================== -->
+    <!-- SECTION 1: GRADE ENTRY FORM                -->
+    <!-- ========================================== -->
+    <div class="card mb-4 shadow-sm border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Enter Academic Grades</h5>
+            <small>Fill in grades for the selected term to update your performance chart.</small>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('student.tracker') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                
+                <!-- Term and Exam Selection -->
+                <div class="row mb-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold">Select Term</label>
+                        <select name="term" class="form-select" required>
+                            {% for t in allowed_terms %}
+                                <option value="{{ t }}">{{ t }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Exam Type</label>
+                        <select name="exam_type" class="form-select" required>
+                            <option value="BOT">Beginning of Term (BOT)</option>
+                            <option value="MT">Mid Term (MT)</option>
+                            <option value="EOT" selected>End of Term (EOT)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100" {% if su_preview %}disabled title="Disabled in SuperUser preview mode"{% endif %}>
+                            <i class="bi bi-save me-1"></i> Save Grades
+                        </button>
+                    </div>
+                </div>
+
+                <hr>
+
+                <!-- Subject Grade Inputs -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Subject</th>
+                                <th style="width: 150px;">Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if offered_subjects %}
+                                {% for subject in offered_subjects %}
+                                <tr>
+                                    <td>
+                                        {{ subject }}
+                                        <input type="hidden" name="subject_{{ loop.index }}" value="{{ subject }}">
+                                    </td>
+                                    <td>
+                                        <select name="grade_{{ loop.index }}" class="form-select form-select-sm border-primary">
+                                            <option value="">Select Grade</option>
+                                            {% for g in (a_grades or ['A', 'B', 'C', 'D', 'E', 'O', 'F']) %}
+                                                <option value="{{ g }}">{{ g }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="2" class="text-center text-muted py-4">
+                                        No subjects found for this student. Please check registration details.
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SECTION 2: PERFORMANCE CHART               -->
+    <!-- ========================================== -->
+    <div class="card mb-4 shadow-sm border-0">
+        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="m-0 fw-bold text-primary">
+                <i class="bi bi-bar-chart-line-fill me-2"></i>Performance Visualization
+            </h6>
+            <div class="d-flex gap-2">
+                <!-- ✅ FIX: Use allowed_terms for chart filter -->
+                <select id="chart-term-filter" class="form-select form-select-sm" style="width: 140px;">
+                    {% for t in allowed_terms %}
+                        <option value="{{ t }}" {% if t == 'ALL' %}selected{% endif %}>
+                            {% if t == 'ALL' %}All Terms{% else %}{{ t }}{% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+                <button id="download-btn" class="btn btn-outline-primary btn-sm" onclick="downloadChart()">
+                    <i class="bi bi-download"></i> Export PNG
+                </button>
+            </div>
+        </div>
+        <div class="card-body text-center d-flex justify-content-center align-items-center position-relative" style="min-height: 450px; background-color: #f8f9fa;">
+            
+            <!-- Loading Spinner -->
+            <div id="chart-loader" class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading chart...</span>
+            </div>
+            
+            <!-- Chart Image -->
+            <img id="chart-image" src="" alt="Performance Chart" 
+                 class="img-fluid shadow-sm rounded" 
+                 style="max-height: 600px; display: none; transition: opacity 0.3s;">
+                 
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- SECTION 3: STATISTICS SUMMARY (BOT/MT/EOT) -->
+    <!-- ========================================== -->
+    <div class="row mt-2" id="stats-container" style="display: none;">
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 text-center p-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-2">BOT Average</h6>
+                <h2 class="mb-0" id="stat-bot" style="color: #ef4444">--</h2>
+                <small class="text-muted" id="stat-bot-detail">No Data</small>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 text-center p-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-2">MT Average</h6>
+                <h2 class="mb-0" id="stat-mt" style="color: #3b82f6">--</h2>
+                <small class="text-muted" id="stat-mt-detail">No Data</small>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm h-100 text-center p-3">
+                <h6 class="text-muted text-uppercase small fw-bold mb-2">EOT Average</h6>
+                <h2 class="mb-0" id="stat-eot" style="color: #10b981">--</h2>
+                <small class="text-muted" id="stat-eot-detail">No Data</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // ✅ FIX: Load chart for first term in allowed_terms by default
+    const filter = document.getElementById('chart-term-filter');
+    if (filter && filter.options.length > 0) {
+        loadChart(filter.value);  // Load default term
+        filter.addEventListener('change', (e) => loadChart(e.target.value));
+    }
+});
+
+function loadChart(term) {
+    const loader = document.getElementById('chart-loader');
+    const img = document.getElementById('chart-image');
+    const statsContainer = document.getElementById('stats-container');
+
+    loader.style.display = 'inline-block';
+    img.style.display = 'none';
+    statsContainer.style.display = 'none';
+
+    // Fetch chart  The backend expects the exact term string
+    fetch(`/student/tracker/chart/${encodeURIComponent(term)}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.image) {
+                // Set image src with Base64 PNG
+                img.src = `data:image/png;base64,${data.image}`;
+                img.onload = () => {
+                    loader.style.display = 'none';
+                    img.style.display = 'block';
+                    setTimeout(() => img.style.opacity = '1', 10);
+                    
+                    // If stats exist, update UI
+                    if (data.stats) updateStats(data.stats);
+                };
+            } else {
+                loader.style.display = 'none';
+                img.alt = 'No chart data available';
+                img.style.display = 'block';
+            }
+        })
+        .catch(err => {
+            console.error('Chart load error:', err);
+            loader.style.display = 'none';
+        });
+}
+
+function updateStats(stats) {
+    const container = document.getElementById('stats-container');
+    container.style.display = 'flex';
+
+    const getGrade = (pts) => {
+        if (!pts && pts !== 0) return 'N/A';
+        if (pts >= 5.5) return 'A';
+        if (pts >= 4.5) return 'B';
+        if (pts >= 3.5) return 'C';
+        if (pts >= 2.5) return 'D';
+        if (pts >= 1.5) return 'O';
+        return 'F';
+    };
+
+    // Update BOT
+    const bot = stats['BOT'];
+    if (bot && bot.average) {
+        document.getElementById('stat-bot').innerText = bot.average.toFixed(1);
+        document.getElementById('stat-bot-detail').innerText = `Avg Grade: ${getGrade(bot.average)} | Rec: ${bot.count}`;
+    } else {
+        document.getElementById('stat-bot').innerText = "--";
+        document.getElementById('stat-bot-detail').innerText = "No Data";
+    }
+
+    // Update MT
+    const mt = stats['MT'];
+    if (mt && mt.average) {
+        document.getElementById('stat-mt').innerText = mt.average.toFixed(1);
+        document.getElementById('stat-mt-detail').innerText = `Avg Grade: ${getGrade(mt.average)} | Rec: ${mt.count}`;
+    } else {
+        document.getElementById('stat-mt').innerText = "--";
+        document.getElementById('stat-mt-detail').innerText = "No Data";
+    }
+
+    // Update EOT
+    const eot = stats['EOT'];
+    if (eot && eot.average) {
+        document.getElementById('stat-eot').innerText = eot.average.toFixed(1);
+        document.getElementById('stat-eot-detail').innerText = `Avg Grade: ${getGrade(eot.average)} | Rec: ${eot.count}`;
+    } else {
+        document.getElementById('stat-eot').innerText = "--";
+        document.getElementById('stat-eot-detail').innerText = "No Data";
+    }
+}
+
+function downloadChart() {
+    const img = document.getElementById('chart-image');
+    if (img.src && img.src.startsWith('image/png')) {
+        const link = document.createElement('a');
+        const term = document.getElementById('chart-term-filter').value.replace(/\s+/g, '_');
+        link.download = `HCLV_Performance_${term}_${new Date().toISOString().slice(0,10)}.png`;
+        link.href = img.src;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        alert('Please wait for the chart to load before exporting.');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,13 @@
+<div class="list-group list-group-flush">
+    {% for file in files %}
+    <a href="{{ url_for('su.edit_page', filename=file.name) }}" 
+       class="list-group-item list-group-item-action small"
+       hx-get="{{ url_for('su.edit_page', filename=file.name) }}"
+       hx-target="#editor-container"
+       hx-swap="innerHTML">
+        <i class="bi bi-file-earmark-code me-1"></i>{{ file.name }}
+    </a>
+    {% else %}
+    <div class="list-group-item text-muted small">No templates found.</div>
+    {% endfor %}
+</div>

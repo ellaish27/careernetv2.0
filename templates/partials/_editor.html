@@ -1,0 +1,32 @@
+<div class="h-100 d-flex flex-column">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <strong class="text-primary">{{ filename }}</strong>
+        <button class="btn btn-sm btn-success" onclick="saveFile()">
+            <i class="bi bi-save"></i> Save Changes
+        </button>
+    </div>
+    <textarea id="code-editor" class="form-control flex-grow-1" 
+              style="font-family: monospace; font-size: 13px; resize: none;">{{ content }}</textarea>
+</div>
+<script>
+function saveFile() {
+    const content = document.getElementById('code-editor').value;
+    fetch('{{ url_for("su.save_page", filename=filename) }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({content: content})
+    })
+    .then(r => r.json())
+    .then(d => {
+        if(d.status === 'success') {
+            alert('File saved successfully!');
+        } else {
+            alert('Error: ' + d.message);
+        }
+    })
+    .catch(err => alert('Network error: ' + err));
+}
+</script>

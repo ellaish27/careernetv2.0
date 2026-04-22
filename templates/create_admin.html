@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block app_content %}
+<div class="card shadow-sm" style="max-width: 500px; margin: auto;">
+    <div class="card-header bg-white">Create Administrator Account</div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('admin.create_admin') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Create Admin</button>
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

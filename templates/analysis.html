@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block app_content %}
+<div class="row">
+    <!-- Student Profile Header -->
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-1">Student Profile: {{ student.name }}</h4>
+                    <span class="badge bg-primary">{{ student.combination }}</span>
+                    <span class="badge bg-info ms-2">{{ o_bonus }} O-Level Bonus</span>
+                    <span class="badge bg-secondary ms-2">{{ 1.5 if student.gender == 'F' else 0.0 }} Gender Bonus</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('admin.export_report', student_id=student.id) }}" class="btn btn-outline-success">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Export Excel
+                    </a>
+                    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary">Back</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prediction Section -->
+    {% if prediction %}
+    <div class="col-12 mb-4">
+        <div class="card border-warning shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <i class="bi bi-lightbulb me-2"></i>Prediction Analysis for {{ active_course }}
+            </div>
+            <div class="card-body">
+                <p class="fw-bold">{{ prediction.needed }}</p>
+                <ul class="mb-0">
+                    {% for s in prediction.suggestions %}
+                    <li>{{ s }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Eligibility Table -->
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">Eligibility Report for {{ student.name }}</div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Course Code</th>
+                            <th>Course Name</th>
+                            <th>Weight</th>
+                            <th>Cutoff</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in report %}
+                        <tr>
+                            <td class="fw-bold">{{ r.code }}</td>
+                            <td>{{ r.course }}</td>
+                            <td>{{ r.weight }}</td>
+                            <td>{{ r.cutoff }}</td>
+                            <td>
+                                {% if r.status == "Qualified" %}
+                                    <span class="badge bg-success">Qualified</span>
+                                {% elif r.status == "Borderline" %}
+                                    <span class="badge bg-warning text-dark">Almost there</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Not Qualified</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin.predict', student_id=student.id, course_code=r.code) }}" class="btn btn-sm btn-outline-primary">
+                                    Predict
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

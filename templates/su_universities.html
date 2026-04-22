@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block page_title %}Manage Universities{% endblock %}
+
+{% block app_content %}
+<div class="row">
+    <!-- Add Form -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">Add New University</div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('su.manage_universities') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" value="add">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">University Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Type</label>
+                        <select name="type" class="form-select" required>
+                            <option value="Public">Public</option>
+                            <option value="Private">Private</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Website</label>
+                        <input type="url" name="website" class="form-control" placeholder="https://example.com">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add University</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">University Registry</div>
+            <div class="card-body table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead><tr><th>Name</th><th>Type</th><th>Website</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        {% for uni in universities %}
+                        <tr>
+                            <td class="fw-bold">{{ uni.name }}</td>
+                            <td><span class="badge {% if uni.uni_type == 'Public' %}bg-success{% else %}bg-warning text-dark{% endif %}">{{ uni.uni_type }}</span></td>
+                            <td><a href="{{ uni.website }}" target="_blank" class="text-decoration-none">Visit <i class="bi bi-box-arrow-up-right"></i></a></td>
+                            <td>
+                                <form method="POST" action="{{ url_for('su.manage_universities') }}" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="uni_id" value="{{ uni.id }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this university?');">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="4" class="text-center text-muted py-4">No universities added yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

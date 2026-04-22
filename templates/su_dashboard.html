@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block page_title %}SU Control Panel{% endblock %}
+{% block app_content %}
+<div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3 mb-4">
+        <div class="list-group shadow-sm sticky-top" style="top: 20px; z-index: 10;">
+            <a href="#settings-panel" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                <i class="bi bi-gear-fill me-2"></i>Site Settings
+            </a>
+            <a href="#pages-panel" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="bi bi-file-earmark-text me-2"></i>Page Manager
+            </a>
+            <a href="#users-panel" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="bi bi-people-fill me-2"></i>User Management
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9">
+        <div class="tab-content">
+            
+            <!-- PANEL 1: SITE SETTINGS -->
+            <div class="tab-pane fade show active" id="settings-panel">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white"><h4 class="mb-0"><i class="bi bi-palette2 me-2"></i>Global Theme & Content</h4></div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 border-end">
+                                <h6 class="text-muted text-uppercase mb-3">Text Content</h6>
+                                <form id="contentForm">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <div class="mb-3"><label class="form-label small">Site Title</label><input type="text" name="site_title" class="form-control" value="{{ site_content.get('site_title', '') }}"></div>
+                                    <div class="mb-3"><label class="form-label small">Welcome Text</label><input type="text" name="welcome_text" class="form-control" value="{{ site_content.get('welcome_text', '') }}"></div>
+                                    <button type="submit" class="btn btn-primary btn-sm w-100">Save Content</button>
+                                </form>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted text-uppercase mb-3">Visual Style</h6>
+                                <form id="themeForm">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-6"><label class="form-label small">Primary</label><input type="color" name="primary-color" class="form-control form-control-color w-100" value="{{ site_theme.get('primary-color', '#002147') }}"></div>
+                                        <div class="col-6"><label class="form-label small">Accent</label><input type="color" name="accent-color" class="form-control form-control-color w-100" value="{{ site_theme.get('accent-color', '#D4AF37') }}"></div>
+                                    </div>
+                                    <div class="mb-3"><label class="form-label small">Font</label>
+                                        <select name="font-family" class="form-select form-select-sm">
+                                            <option {% if site_theme.get('font-family') == 'Segoe UI' %}selected{% endif %}>Segoe UI</option>
+                                            <option {% if site_theme.get('font-family') == 'Roboto' %}selected{% endif %}>Roboto</option>
+                                            <option {% if site_theme.get('font-family') == 'Arial' %}selected{% endif %}>Arial</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-secondary btn-sm w-100">Apply Theme</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL 2: PAGE MANAGER (WYSIWYG) -->
+            <div class="tab-pane fade" id="pages-panel">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between">
+                        <h4 class="mb-0"><i class="bi bi-collection me-2"></i>Live Page Editor</h4>
+                        <form method="POST" action="{{ url_for('su.create_page') }}" class="d-flex gap-2">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="text" name="title" class="form-control form-control-sm" placeholder="New Page Title" required style="width: 200px;">
+                            <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-plus-lg me-1"></i>Create</button>
+                        </form>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info small">
+                            <strong>WordPress-style flow:</strong> open any page below in a new tab, enable <strong>Live Edit</strong>, edit highlighted text, then toggle Live Edit off to auto-save.
+                        </div>
+
+                        <h6 class="text-muted text-uppercase mb-2">Core Pages</h6>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-sm table-hover align-middle">
+                                <thead class="table-light"><tr><th>Page</th><th>Edit Mode</th><th>Open</th></tr></thead>
+                                <tbody>
+                                    {% for p in core_pages %}
+                                    <tr>
+                                        <td class="fw-semibold">{{ p.name }}</td>
+                                        <td><span class="badge bg-secondary">{{ p.editable }}</span></td>
+                                        <td><a href="{{ p.url }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-box-arrow-up-right me-1"></i>Open</a></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h6 class="text-muted text-uppercase mb-2">Custom Pages</h6>
+                        <!-- Page List Table -->
+                        <div class="table-responsive mb-4">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light"><tr><th>Title</th><th>Slug</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    {% for p in pages %}
+                                    <tr>
+                                        <td class="fw-bold">{{ p.title }}</td>
+                                        <td><code>/page/{{ p.slug }}</code></td>
+                                        <td><span class="badge bg-success">Live</span></td>
+                                        <td class="d-flex gap-2">
+                                            <a href="{{ url_for('view_custom_page', slug=p.slug) }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-eye me-1"></i>View</a>
+                                            <button class="btn btn-sm btn-outline-primary edit-page-btn" 
+                                                    data-id="{{ p.id }}" data-title="{{ p.title }}" data-content="{{ p.content|e }}">
+                                                <i class="bi bi-pencil me-1"></i>Edit
+                                            </button>
+                                            <form method="POST" action="{{ url_for('su.delete_page', page_id=p.id) }}" class="d-inline" onsubmit="return confirm('Delete this page?');">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr><td colspan="4" class="text-center text-muted py-3">No custom pages yet. Create one above.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- WYSIWYG Editor Modal Area -->
+                        <div id="editor-area" class="border rounded p-3 bg-light" style="display: none;">
+                            <form id="pageEditForm" method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="page_id" id="edit-page-id">
+                                <div class="row mb-3">
+                                    <div class="col-8"><label class="form-label small fw-bold">Page Title</label><input type="text" id="edit-title" name="title" class="form-control" required></div>
+                                    <div class="col-4 d-flex align-items-end gap-2">
+                                        <button type="submit" class="btn btn-success w-100"><i class="bi bi-save me-1"></i>Publish Live</button>
+                                        <button type="button" class="btn btn-secondary w-100" onclick="closeEditor()">Cancel</button>
+                                    </div>
+                                </div>
+                                <label class="form-label small fw-bold">Page Content (Edit Visually)</label>
+                                <textarea id="tinymce-editor" name="content"></textarea>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL 3: USER MANAGEMENT -->
+            <div class="tab-pane fade" id="users-panel">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white"><h4 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i>Create User</h4></div>
+                    <div class="card-body">
+                        <form action="{{ url_for('su.create_user') }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div class="row g-3">
+                                <div class="col-md-4"><input type="text" name="username" class="form-control" placeholder="Username" required></div>
+                                <div class="col-md-4"><input type="password" name="password" class="form-control" placeholder="Password" required></div>
+                                <div class="col-md-2"><select name="role" class="form-select"><option value="Administrator">Admin</option><option value="SuperUser">SuperUser</option></select></div>
+                                <div class="col-md-2"><button type="submit" class="btn btn-danger w-100">Create</button></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- TinyMCE WYSIWYG Editor -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"></script>
+<script>
+    // Initialize TinyMCE
+    tinymce.init({
+        selector: '#tinymce-editor',
+        height: 520,
+        menubar: 'file edit view insert format tools table help',
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+            'insertdatetime', 'media', 'table', 'wordcount', 'emoticons', 'hr'
+        ],
+        toolbar: [
+            'undo redo | blocks | bold italic underline strikethrough forecolor backcolor | alignleft aligncenter alignright alignjustify',
+            'bullist numlist outdent indent | link image media table hr blockquote | removeformat code fullscreen preview'
+        ],
+        block_formats: 'Paragraph=p; Heading 1=h1; Heading 2=h2; Heading 3=h3; Heading 4=h4; Heading 5=h5; Heading 6=h6',
+        style_formats: [
+            { title: 'Paragraph', block: 'p' },
+            { title: 'Heading 1', block: 'h1' },
+            { title: 'Heading 2', block: 'h2' },
+            { title: 'Heading 3', block: 'h3' },
+            { title: 'Heading 4', block: 'h4' },
+            { title: 'Heading 5', block: 'h5' },
+            { title: 'Heading 6', block: 'h6' },
+            { title: 'Bold', inline: 'b' },
+            { title: 'Italic', inline: 'i' },
+            { title: 'Underline', inline: 'u' },
+            { title: 'Inline Code', inline: 'code' }
+        ],
+        valid_elements: '*[*]',
+        extended_valid_elements: 'script[src|async|defer|type],iframe[src|frameborder|style|scrolling|class|width|height|name|align|allowfullscreen|allow|loading]',
+        branding: false,
+        browser_spellcheck: true,
+        convert_urls: false,
+        relative_urls: false,
+        remove_script_host: false,
+        content_style: 'body { font-family:Segoe UI,Roboto,Arial,sans-serif; font-size:15px; line-height:1.6; } h1,h2,h3,h4,h5,h6 { margin-top: 1rem; margin-bottom: .5rem; }'
+    });
+
+    function openEditorFromButton(btn) {
+        const id = btn.dataset.id;
+        const title = btn.dataset.title || '';
+        const content = btn.dataset.content || '';
+
+        document.getElementById('edit-page-id').value = id;
+        document.getElementById('edit-title').value = title;
+        document.getElementById('pageEditForm').action = '/su/pages/edit/' + id;
+        document.getElementById('editor-area').style.display = 'block';
+
+        // TinyMCE may still be initializing on slower clients.
+        const editor = tinymce.get('tinymce-editor');
+        if (editor) {
+            editor.setContent(content);
+        } else {
+            const textarea = document.getElementById('tinymce-editor');
+            if (textarea) textarea.value = content;
+        }
+
+        document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Delegated handler is more reliable for dynamic/rehydrated DOM.
+    document.addEventListener('click', (event) => {
+        const btn = event.target.closest('.edit-page-btn');
+        if (!btn) return;
+        event.preventDefault();
+        openEditorFromButton(btn);
+    });
+
+    function closeEditor() {
+        document.getElementById('editor-area').style.display = 'none';
+        const editor = tinymce.get('tinymce-editor');
+        if (editor) {
+            editor.setContent('');
+        } else {
+            const textarea = document.getElementById('tinymce-editor');
+            if (textarea) textarea.value = '';
+        }
+    }
+
+    // AJAX Content & Theme Saving
+    ['contentForm', 'themeForm'].forEach(formId => {
+        document.getElementById(formId)?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(this).entries());
+            fetch(this.id === 'contentForm' ? '/su/save_content' : '/su/save_theme', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content},
+                body: JSON.stringify(data)
+            }).then(res => res.json()).then(r => r.status === 'success' ? location.reload() : alert('Save failed'));
+        });
+    });
+</script>
+{% endblock %}

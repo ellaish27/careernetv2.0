@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block page_title %}{{ page.title }}{% endblock %}
+
+{% block app_content %}
+<div class="container py-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-4 p-md-5">
+            <h1 class="mb-4 text-primary">{{ page.title }}</h1>
+            <hr>
+            <!-- Render live WYSIWYG HTML safely -->
+            <div class="page-content">
+                {{ page.content|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-content img { max-width: 100%; height: auto; border-radius: 8px; margin: 1rem 0; }
+    .page-content a { color: var(--accent-color, #D4AF37); text-decoration: underline; }
+    .page-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    .page-content th, .page-content td { border: 1px solid #dee2e6; padding: 8px 12px; text-align: left; }
+    .page-content th { background-color: #f8f9fa; }
+</style>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block page_title %}Institutions{% endblock %}
+{% block app_content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-transparent">
+        <h4 class="mb-0"><i class="bi bi-bank2 me-2 text-gold"></i>Higher Institutions of Learning</h4>
+    </div>
+    <div class="card-body">
+        <p class="lead">Explore universities in Uganda. Click to visit their official websites.</p>
+
+        {% set groups = {'Public': [], 'Private': []} %}
+        {% for uni in universities %}
+            {% if uni.uni_type in groups %}
+                {% set _ = groups[uni.uni_type].append(uni) %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="accordion" id="uniAccordion">
+            <!-- Public Universities -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#publicUni">
+                        <strong>Public Universities ({{ groups['Public']|length }})</strong>
+                    </button>
+                </h2>
+                <div id="publicUni" class="accordion-collapse collapse show" data-bs-parent="#uniAccordion">
+                    <div class="accordion-body">
+                        <div class="row">
+                            {% for uni in groups['Public'] %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="text-primary">{{ uni.name }}</h6>
+                                        <p class="small text-muted mb-0">
+                                            <a href="{{ uni.website }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                                <i class="bi bi-globe me-1"></i> Visit Website
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No public universities listed.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Private Universities -->
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#privateUni">
+                        <strong>Private Universities ({{ groups['Private']|length }})</strong>
+                    </button>
+                </h2>
+                <div id="privateUni" class="accordion-collapse collapse" data-bs-parent="#uniAccordion">
+                    <div class="accordion-body">
+                        <div class="row">
+                            {% for uni in groups['Private'] %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <h6 class="text-secondary">{{ uni.name }}</h6>
+                                        <p class="small text-muted mb-0">
+                                            <a href="{{ uni.website }}" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
+                                                <i class="bi bi-globe me-1"></i> Visit Website
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No private universities listed.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

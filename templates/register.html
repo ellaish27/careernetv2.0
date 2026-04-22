@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Register for Holy Cross Lake View Careers Office - Begin your university journey">
+    <meta name="theme-color" content="#002147">
+    
+    <title>Student Registration | HCLV CareerNet</title>
+    <link rel="icon" href="{{ url_for('static', filename='logo.png') }}" type="image/png">
+    
+    <!-- Preconnect to critical origins for performance -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    
+    <!-- Critical CSS inlined for instant above-the-fold rendering -->
+    <style>
+        /* Design System: CSS Custom Properties */
+        :root {
+            /* Core brand colors */
+            --color-primary: #002147;
+            --color-primary-dark: #001a36;
+            --color-accent: #D4AF37;
+            --color-accent-light: #F4E8C1;
+            
+            /* Neutral palette */
+            --color-bg: #ffffff;
+            --color-bg-alt: #f8f9fa;
+            --color-text: #1a1a1a;
+            --color-text-muted: #666666;
+            --color-border: #e0e0e0;
+            --color-error: #ef4444;
+            --color-success: #10b981;
+            
+            /* Typography system stack (performance-first) */
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            --font-size-base: 1rem;
+            --line-height-base: 1.6;
+            
+            /* Spacing scale */
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 1rem;
+            --space-4: 1.5rem;
+            --space-5: 2rem;
+            --space-6: 3rem;
+            
+            /* Elevation & shadows */
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,33,71,0.1);
+            --shadow-lg: 0 10px 30px rgba(0,33,71,0.15);
+            
+            /* Transitions (respecting reduced motion) */
+            --transition-fast: 150ms ease;
+            --transition-base: 250ms ease;
+            --transition-slow: 400ms ease;
+            
+            /* Border radius */
+            --radius-sm: 0.25rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 1rem;
+            --radius-full: 9999px;
+            
+            /* Wizard specific */
+            --wizard-max-width: 720px;
+            --wizard-card-padding: var(--space-5);
+        }
+        
+        /* Dark mode support (progressive enhancement) */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-bg: #0f172a;
+                --color-bg-alt: #1e293b;
+                --color-text: #f1f5f9;
+                --color-text-muted: #94a3b8;
+                --color-border: #334155;
+                --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+                --shadow-lg: 0 10px 30px rgba(0,0,0,0.4);
+            }
+        }
+        
+        /* Reduced motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        
+        /* Base reset & box sizing */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+        
+        body {
+            font-family: var(--font-family);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-base);
+            color: var(--color-text);
+            background: linear-gradient(135deg, var(--color-primary) 0%, #003366 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-3);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        
+        /* Skip link for keyboard users */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--color-accent);
+            color: var(--color-primary);
+            padding: var(--space-2) var(--space-3);
+            z-index: 1000;
+            transition: top var(--transition-fast);
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+        }
+        
+        .skip-link:focus {
+            top: var(--space-3);
+        }
+        
+        /* Start Screen */
+        .start-screen {
+            text-align: center;
+            padding: var(--space-5);
+            max-width: 600px;
+            z-index: 10;
+            position: relative;
+        }
+        
+        .start-logo {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-4);
+            box-shadow: var(--shadow-md);
+            border: 2px solid var(--color-accent);
+        }
+        
+        .start-logo img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+        
+        .start-title {
+            color: white;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 800;
+            margin-bottom: var(--space-2);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .start-btn {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border: none;
+            border-radius: var(--radius-full);
+            padding: var(--space-3) var(--space-6);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            margin-top: var(--space-4);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            box-shadow: var(--shadow-md);
+            min-height: 48px;
+            min-width: 200px;
+        }
+        
+        .start-btn:hover {
+            background: #e5c158;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+        }
+        
+        .start-btn:focus-visible {
+            outline: 3px solid rgba(212, 175, 55, 0.5);
+            outline-offset: 2px;
+        }
+        
+        .start-link {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            margin-top: var(--space-3);
+            display: inline-block;
+            font-weight: 500;
+            transition: color var(--transition-fast);
+        }
+        
+        .start-link:hover {
+            color: var(--color-accent);
+        }
+        
+        /* Vortex Animation */
+        .vortex-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-base);
+            z-index: 9999;
+        }
+        
+        .vortex-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .swirl {
+            width: 120px;
+            height: 120px;
+            border: 4px solid transparent;
+            border-top-color: var(--color-accent);
+            border-radius: var(--radius-full);
+            animation: spin 1s linear infinite;
+            will-change: transform;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .welcome-text {
+            color: white;
+            margin-top: var(--space-3);
+            font-size: 1.1rem;
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+        
+        .welcome-text.visible {
+            opacity: 1;
+        }
+        
+        /* Wizard Container */
+        .wizard-container {
+            display: none;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: var(--wizard-max-width);
+            padding: var(--space-4);
+        }
+        
+        .wizard-container.active {
+            display: block;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            z-index: 100;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: var(--color-accent);
+            width: 0%;
+            transition: width var(--transition-base);
+        }
+        
+        /* Wizard Card */
+        .wizard-card {
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: var(--wizard-card-padding);
+            display: none;
+            animation: fadeInUp var(--transition-slow) ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .wizard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+        }
+        
+        .wizard-card.active {
+            display: block;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .wizard-title {
+            color: var(--color-primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-4);
+            padding-bottom: var(--space-3);
+            border-bottom: 2px solid var(--color-accent);
+        }
+        
+        /* Form Styles */
+        .form-group {
+            margin-bottom: var(--space-4);
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: var(--space-2);
+            font-weight: 500;
+            color: var(--color-text);
+            font-size: 0.95rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: var(--space-3);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+            background: var(--color-bg);
+            color: var(--color-text);
+            min-height: 44px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+        
+        .form-control:invalid:not(:placeholder-shown) {
+            border-color: var(--color-error);
+        }
+        
+        .form-text {
+            display: block;
+            margin-top: var(--space-1);
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+        }
+        
+        .form-error {
+            color: var(--color-error);
+            font-size: 0.875rem;
+            margin-top: var(--space-1);
+            display: none;
+        }
+        
+        .form-control.is-invalid + .form-error {
+            display: block;
+        }
+        
+        /* Wizard Navigation */
+        .wizard-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--space-5);
+            gap: var(--space-3);
+        }
+        
+        .btn-wizard {
+            padding: var(--space-3) var(--space-5);
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: none;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+        
+        .btn-prev {
+            background: var(--color-bg-alt);
+            color: var(--color-text);
+        }
+        
+        .btn-prev:hover {
+            background: #e2e8f0;
+        }
+        
+        .btn-next, .btn-submit {
+            background: var(--color-primary);
+            color: white;
+        }
+        
+        .btn-next:hover, .btn-submit:hover {
+            background: var(--color-primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn-submit {
+            width: 100%;
+            background: var(--color-accent);
+            color: var(--color-primary);
+            font-size: 1.1rem;
+            margin-top: var(--space-4);
+        }
+        
+        .btn-submit:hover {
+            background: #e5c158;
+        }
+        
+        .btn-wizard:focus-visible {
+            outline: 3px solid var(--color-accent);
+            outline-offset: 2px;
+        }
+        
+        .btn-wizard:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Theme Selection */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+        
+        .theme-option {
+            padding: var(--space-3);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            background: var(--color-bg);
+        }
+        
+        .theme-option:hover,
+        .theme-option.selected {
+            border-color: var(--color-accent);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .theme-preview {
+            width: 100%;
+            height: 60px;
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-2);
+            background: var(--preview-bg, #f1f5f9);
+            border: 1px solid var(--preview-border, #cbd5e1);
+        }
+        
+        .theme-option[data-theme="dark"] .theme-preview {
+            --preview-bg: #1e293b;
+            --preview-border: #475569;
+        }
+        
+        .theme-option[data-theme="neon"] .theme-preview {
+            --preview-bg: #0f172a;
+            --preview-border: #0ff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+        
+        /* Custom Theme Panel */
+        #custom-theme-panel {
+            display: none;
+            margin-top: var(--space-4);
+            padding: var(--space-4);
+            background: var(--color-bg-alt);
+            border-radius: var(--radius-md);
+            border: 1px dashed var(--color-border);
+        }
+        
+        .color-picker-group {
+            display: flex;
+            gap: var(--space-3);
+            margin-bottom: var(--space-3);
+        }
+        
+        .color-picker {
+            flex: 1;
+        }
+        
+        .color-picker label {
+            display: block;
+            margin-bottom: var(--space-1);
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+        }
+        
+        .color-picker input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            background: var(--color-bg);
+        }
+        
+        /* Subject Selection */
+        .subject-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: var(--space-3);
+            margin-bottom: var(--space-3);
+            align-items: center;
+        }
+        
+        .btn-remove {
+            background: var(--color-error);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        
+        .btn-remove:hover {
+            background: #dc2626;
+        }
+        
+        .btn-add {
+            background: var(--color-bg-alt);
+            color: var(--color-primary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            padding: var(--space-2) var(--space-4);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-top: var(--space-2);
+        }
+        
+        .btn-add:hover {
+            background: #e2e8f0;
+            border-color: var(--color-accent);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            :root {
+                --wizard-card-padding: var(--space-4);
+            }
+            
+            body {
+                padding: var(--space-2);
+                align-items: flex-start;
+                padding-top: var(--space-6);
+            }
+            
+            .wizard-card {
+                padding: var(--space-4);
+                border-radius: var(--radius-md);
+            }
+            
+            .wizard-title {
+                font-size: 1.3rem;
+            }
+            
+            .subject-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-remove {
+                align-self: flex-end;
+            }
+            
+            .theme-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .color-picker-group {
+                flex-direction: column;
+                gap: var(--space-2);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .theme-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .wizard-nav {
+                flex-direction: column;
+            }
+            
+            .btn-wizard {
+                width: 100%;
+            }
+        }
+        
+        /* Utility Classes */
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+        
+        .text-center { text-align: center; }
+        .text-muted { color: var(--color-text-muted); }
+        .mt-3 { margin-top: var(--space-3); }
+        .mb-3 { margin-bottom: var(--space-3); }
+        .d-flex { display: flex; }
+        .gap-2 { gap: var(--space-2); }
+        .justify-content-end { justify-content: flex-end; }
+        
+        /* Focus Visible for Keyboard Navigation */
+        :focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 2px;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+            .vortex-overlay,
+            .progress-container,
+            .btn-wizard,
+            .btn-submit {
+                display: none;
+            }
+            .wizard-card {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+    
+    <!-- Non-critical CSS loaded asynchronously -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" media="print" onload="this.media='all'">
+    
+    <noscript>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    </noscript>
+</head>
+<body>
+    <!-- Skip Link for Accessibility -->
+    <a href="#wizard-form" class="skip-link">Skip to registration form</a>
+    
+    <!-- 1. Start Screen -->
+    <div id="start-screen" class="start-screen">
+        <div class="start-logo">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Holy Cross Lake View Logo" width="80" height="80" loading="lazy">
+        </div>
+        <h1 class="start-title">Begin Your Journey</h1>
+        <p class="text-white" style="opacity: 0.9; max-width: 400px; margin: 0 auto var(--space-4);">
+            Join Holy Cross Lake View's Careers Office and unlock your path to university success.
+        </p>
+        <button type="button" id="start-btn" class="start-btn" aria-label="Start registration process">
+            Register Now
+            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </button>
+        <a href="{{ url_for('auth.login') }}" class="start-link">
+            <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Back to Login
+        </a>
+    </div>
+
+    <!-- 2. Vortex Loading Animation -->
+    <div id="vortex-overlay" class="vortex-overlay" aria-hidden="true">
+        <div class="swirl"></div>
+        <div class="welcome-text" id="welcome-text">Preparing your registration...</div>
+    </div>
+
+    <!-- 3. Wizard Form -->
+    <div class="wizard-container" id="wizard-area">
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div id="progress-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+
+        <!-- Main Form -->
+        <form id="registration-form" action="{{ url_for('auth.register') }}" method="POST" onsubmit="return prepareThemeSubmission()" novalidate>
+            <!-- CSRF Protection -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <!-- Hidden Theme Inputs (populated by JS) -->
+            <input type="hidden" name="theme_type" id="theme_type_input" value="light">
+            <input type="hidden" name="theme_bg" id="theme_bg_input" value="">
+            <input type="hidden" name="theme_text" id="theme_text_input" value="">
+            <input type="hidden" name="theme_font" id="theme_font_input" value="">
+
+            <!-- Card 1: Personal Details -->
+            <div class="wizard-card active" data-step="1" role="region" aria-labelledby="step1-title">
+                <h2 id="step1-title" class="wizard-title">1. Your Details</h2>
+                
+                <div class="form-group">
+                    <label for="last_name" class="form-label">Surname <span aria-hidden="true">*</span></label>
+                    <input type="text" id="last_name" name="last_name" class="form-control" placeholder="e.g., Mukasa" required aria-required="true">
+                    <span class="form-error">Please enter your surname</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="first_name" class="form-label">First Name <span aria-hidden="true">*</span></label>
+                    <input type="text" id="first_name" name="first_name" class="form-control" placeholder="e.g., John" required aria-required="true">
+                    <span class="form-error">Please enter your first name</span>
+                </div>
+                
+                <div class="wizard-nav justify-content-end">
+                    <button type="button" class="btn-wizard btn-next" onclick="nextStep()" aria-label="Go to next step">
+                        Next
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 2: Academic Level -->
+            <div class="wizard-card" data-step="2" role="region" aria-labelledby="step2-title">
+                <h2 id="step2-title" class="wizard-title">2. Academic Level</h2>
+                
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="sel-class" class="form-label">Class <span aria-hidden="true">*</span></label>
+                            <select id="sel-class" name="class" class="form-select" required aria-required="true">
+                                <option value="" selected disabled>Select your class</option>
+                            </select>
+                            <span class="form-error">Please select your class</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="sel-stream" class="form-label">Stream <span aria-hidden="true">*</span></label>
+                            <select id="sel-stream" name="stream" class="form-select" required aria-required="true">
+                                <option value="" selected disabled>Select your stream</option>
+                            </select>
+                            <span class="form-error">Please select your stream</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="wizard-nav">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()" aria-label="Go back to previous step">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                        Back
+                    </button>
+                    <button type="button" class="btn-wizard btn-next" onclick="nextStep()" aria-label="Go to next step">
+                        Next
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 3: Gender -->
+            <div class="wizard-card" data-step="3" role="region" aria-labelledby="step3-title">
+                <h2 id="step3-title" class="wizard-title">3. Bio Data</h2>
+                
+                <div class="form-group">
+                    <label for="gender" class="form-label">Gender <span aria-hidden="true">*</span></label>
+                    <select id="gender" name="gender" class="form-select" required aria-required="true">
+                        <option value="" selected disabled>Select your gender</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                        <option value="O">Prefer not to say</option>
+                    </select>
+                    <span class="form-error">Please select your gender</span>
+                </div>
+                
+                <div class="wizard-nav">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()" aria-label="Go back to previous step">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                        Back
+                    </button>
+                    <button type="button" class="btn-wizard btn-next" onclick="nextStep()" aria-label="Go to next step">
+                        Next
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 4: Course Preferences -->
+            <div class="wizard-card" data-step="4" role="region" aria-labelledby="step4-title">
+                <h2 id="step4-title" class="wizard-title">4. Course Preferences</h2>
+                <p class="text-muted mb-4">Select up to 10 courses you're interested in pursuing.</p>
+                
+                <div id="course-choices-container" class="mb-4" role="group" aria-label="Course selections"></div>
+                
+                <div class="wizard-nav">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()" aria-label="Go back to previous step">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                        Back
+                    </button>
+                    <button type="button" class="btn-wizard btn-next" onclick="nextStep()" aria-label="Go to next step">
+                        Next
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 5: Campus Preferences -->
+            <div class="wizard-card" data-step="5" role="region" aria-labelledby="step5-title">
+                <h2 id="step5-title" class="wizard-title">5. Campus Preferences</h2>
+                <p class="text-muted mb-4">Select up to 4 campuses you'd prefer to attend.</p>
+                
+                <div id="campus-choices-container" class="mb-4" role="group" aria-label="Campus selections"></div>
+                
+                <div class="wizard-nav">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()" aria-label="Go back to previous step">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                        Back
+                    </button>
+                    <button type="button" class="btn-wizard btn-next" onclick="nextStep()" aria-label="Go to next step">
+                        Next
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 6: A-Level Subjects -->
+            <div class="wizard-card" data-step="6" role="region" aria-labelledby="step6-title">
+                <h2 id="step6-title" class="wizard-title">6. A-Level Subjects</h2>
+                <p class="text-muted small mb-4">Select your subjects. Grades will be updated by your administrator later.</p>
+                
+                <!-- General Paper (Compulsory) -->
+                <div class="form-group mb-4 p-3" style="background: var(--color-bg-alt); border-radius: var(--radius-md);">
+                    <label class="form-label fw-bold">Compulsory Subject</label>
+                    <div class="d-flex align-items-center gap-3">
+                        <input type="text" class="form-control" value="General Paper" readonly style="background: var(--color-bg-alt);">
+                        <span class="text-muted small">Grade: N/A (Pending)</span>
+                    </div>
+                </div>
+                
+                <!-- Principal Subjects -->
+                <label class="form-label fw-bold mb-3">Principal Subjects (Select 3)</label>
+                <div id="principal-container" class="mb-4" role="group" aria-label="Principal subject selections"></div>
+                
+                <!-- Subsidiary Subject -->
+                <label class="form-label fw-bold mb-3">Subsidiary Subject (Optional)</label>
+                <div id="subsidiary-container" class="mb-4"></div>
+                
+                <div class="wizard-nav">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()" aria-label="Go back to previous step">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                        Back
+                    </button>
+                    <button type="button" class="btn-wizard btn-next" onclick="nextStep()" aria-label="Go to next step">
+                        Next
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 7: O-Level Grades -->
+            <div class="wizard-card" data-step="7" role="region" aria-labelledby="step7-title">
+                <h2 id="step7-title" class="wizard-title">7. O-Level Grades</h2>
+                <p class="text-muted small mb-4">Add your best O-Level subjects and grades. Duplicate subjects are filtered automatically.</p>
+                
+                <div id="o-level-container" class="mb-4" role="group" aria-label="O-Level subject entries"></div>
+                
+                <button type="button" class="btn-add" onclick="addORow()" aria-label="Add another O-Level subject">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                    Add Subject
+                </button>
+                
+                <div class="wizard-nav">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()" aria-label="Go back to previous step">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                        Back
+                    </button>
+                    <button type="button" class="btn-wizard btn-next" onclick="nextStep()" aria-label="Go to next step">
+                        Next
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 8: Contact Information -->
+            <div class="wizard-card" data-step="8" role="region" aria-labelledby="step8-title">
+                <h2 id="step8-title" class="wizard-title">8. Contact Information</h2>
+                
+                <div class="form-group">
+                    <label for="email" class="form-label">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="student@example.com" aria-describedby="email-help">
+                    <small id="email-help" class="form-text">Optional but recommended for account recovery</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" placeholder="+256 7XX XXX XXX" aria-describedby="phone-help">
+                    <small id="phone-help" class="form-text">Optional but recommended for important notifications</small>
+                </div>
+                
+                <div class="wizard-nav">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()" aria-label="Go back to previous step">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                        Back
+                    </button>
+                    <button type="button" class="btn-wizard btn-next" onclick="nextStep()" aria-label="Go to next step">
+                        Next
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 9: Theme Selection -->
+            <div class="wizard-card" data-step="9" role="region" aria-labelledby="step9-title">
+                <h2 id="step9-title" class="wizard-title">9. Personalize Your Experience</h2>
+                <p class="text-muted mb-4">Choose a theme that suits your preference. You can change this anytime in settings.</p>
+                
+                <div class="theme-grid" role="radiogroup" aria-label="Theme selection">
+                    <div class="theme-option selected" data-theme="light" role="radio" aria-checked="true" tabindex="0" onclick="selectTheme('light')">
+                        <div class="theme-preview"></div>
+                        <div>🌞 Light</div>
+                    </div>
+                    <div class="theme-option" data-theme="dark" role="radio" aria-checked="false" tabindex="0" onclick="selectTheme('dark')">
+                        <div class="theme-preview"></div>
+                        <div>🌑 Dark</div>
+                    </div>
+                    <div class="theme-option" data-theme="metallic" role="radio" aria-checked="false" tabindex="0" onclick="selectTheme('metallic')">
+                        <div class="theme-preview"></div>
+                        <div>⚙️ Metallic</div>
+                    </div>
+                    <div class="theme-option" data-theme="glass" role="radio" aria-checked="false" tabindex="0" onclick="selectTheme('glass')">
+                        <div class="theme-preview"></div>
+                        <div>🔍 Glass</div>
+                    </div>
+                    <div class="theme-option" data-theme="frozen" role="radio" aria-checked="false" tabindex="0" onclick="selectTheme('frozen')">
+                        <div class="theme-preview"></div>
+                        <div>❄️ Frozen</div>
+                    </div>
+                    <div class="theme-option" data-theme="wooden" role="radio" aria-checked="false" tabindex="0" onclick="selectTheme('wooden')">
+                        <div class="theme-preview"></div>
+                        <div>🪵 Wooden</div>
+                    </div>
+                    <div class="theme-option" data-theme="neon" role="radio" aria-checked="false" tabindex="0" onclick="selectTheme('neon')">
+                        <div class="theme-preview"></div>
+                        <div>⚡ Neon</div>
+                    </div>
+                    <div class="theme-option" data-theme="custom" role="radio" aria-checked="false" tabindex="0" onclick="selectTheme('custom')">
+                        <div class="theme-preview"></div>
+                        <div>🎨 Custom</div>
+                    </div>
+                </div>
+                
+                <!-- Custom Theme Panel -->
+                <div id="custom-theme-panel" role="region" aria-label="Custom theme options">
+                    <h6 class="mb-3">Customize Your Theme</h6>
+                    
+                    <div class="color-picker-group">
+                        <div class="color-picker">
+                            <label for="custom-bg">Background Color</label>
+                            <input type="color" id="custom-bg" value="#ffffff" aria-label="Custom background color">
+                        </div>
+                        <div class="color-picker">
+                            <label for="custom-text">Text Color</label>
+                            <input type="color" id="custom-text" value="#333333" aria-label="Custom text color">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="custom-font" class="form-label">Font Family</label>
+                        <select id="custom-font" class="form-select" aria-label="Custom font family">
+                            <option value="Segoe UI">Segoe UI (Default)</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Arial">Arial</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Courier New">Courier New</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="wizard-nav">
+                    <button type="button" class="btn-wizard btn-prev" onclick="prevStep()" aria-label="Go back to previous step">
+                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
+                        Back
+                    </button>
+                    <button type="button" class="btn-wizard btn-next" onclick="nextStep()" aria-label="Go to next step">
+                        Next
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 10: Account Creation -->
+            <div class="wizard-card" data-step="10" role="region" aria-labelledby="step10-title">
+                <h2 id="step10-title" class="wizard-title text-center">10. Create Your Account</h2>
+                
+                <div class="text-center mb-4">
+                    <p class="mb-0">Welcome, <span id="display-name" class="fw-bold">Student</span>!</p>
+                    <p class="text-muted small">Complete your registration to access the Careers Portal</p>
+                </div>
+                
+                <div class="form-group">
+                    <label for="username" class="form-label">Username <span aria-hidden="true">*</span></label>
+                    <input type="text" id="username" name="username" class="form-control" placeholder="Choose a unique username" required aria-required="true" pattern="[a-zA-Z0-9_]{3,20}" title="3-20 characters, letters, numbers, and underscores only">
+                    <span class="form-error">Username must be 3-20 characters (letters, numbers, underscores)</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">Password <span aria-hidden="true">*</span></label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Create a strong password" required aria-required="true" minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}" title="At least 8 characters with uppercase, lowercase, and number">
+                    <span class="form-error">Password must be at least 8 characters with uppercase, lowercase, and number</span>
+                    <small class="form-text mt-1">Use a mix of letters, numbers, and symbols for security</small>
+                </div>
+                
+                <button type="submit" class="btn-submit" id="submit-btn">
+                    <span id="submit-text">Complete Registration</span>
+                    <span id="submit-spinner" class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true" style="display: none;"></span>
+                </button>
+                
+                <p class="text-center text-muted small mt-3">
+                    By registering, you agree to our <a href="#" class="text-decoration-none">Terms of Service</a> and <a href="#" class="text-decoration-none">Privacy Policy</a>.
+                </p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS (loaded async) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" async></script>
+    
+    <!-- Main Registration Script -->
+    <script>
+        // Progressive Enhancement: Add 'js' class if JavaScript is enabled
+        document.documentElement.classList.remove('no-js');
+        document.documentElement.classList.add('js');
+        
+        // State Management
+        const state = {
+            currentStep: 1,
+            totalSteps: 10,
+            optionsData: null,
+            selectedTheme: 'light',
+            formValidated: false
+        };
+        
+        // Initialize on DOM load
+        document.addEventListener('DOMContentLoaded', init);
+        
+        function init() {
+            // Fetch options data
+            fetchOptions()
+                .then(data => {
+                    state.optionsData = data;
+                    populateDropdowns();
+                    setupEventListeners();
+                })
+                .catch(error => {
+                    console.error('Failed to load registration options:', error);
+                    showError('Unable to load registration options. Please refresh the page.');
+                });
+            
+            // Setup keyboard navigation
+            setupKeyboardNav();
+            
+            // Initialize theme selection
+            initThemeSelection();
+        }
+        
+        // Fetch options from backend
+        async function fetchOptions() {
+            const response = await fetch('/get_options', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return await response.json();
+        }
+        
+        // Populate dropdowns with fetched data
+        function populateDropdowns() {
+            if (!state.optionsData) return;
+            
+            // Class dropdown
+            const classSelect = document.getElementById('sel-class');
+            state.optionsData.classes?.forEach(cls => {
+                const option = document.createElement('option');
+                option.value = cls;
+                option.textContent = cls;
+                classSelect.appendChild(option);
+            });
+            
+            // Stream dropdown
+            const streamSelect = document.getElementById('sel-stream');
+            state.optionsData.streams?.forEach(stream => {
+                const option = document.createElement('option');
+                option.value = stream;
+                option.textContent = stream;
+                streamSelect.appendChild(option);
+            });
+            
+            // Course choices (10 slots)
+            const courseContainer = document.getElementById('course-choices-container');
+            for (let i = 1; i <= 10; i++) {
+                const group = document.createElement('div');
+                group.className = 'mb-2 input-group';
+                group.innerHTML = `
+                    <span class="input-group-text">${i}</span>
+                    <select name="courses" class="form-select course-select" aria-label="Course preference ${i}">
+                        <option value="" selected disabled>Select a course</option>
+                        ${state.optionsData.courses?.map(c => `<option value="${c}">${c}</option>`).join('') || ''}
+                    </select>
+                `;
+                courseContainer.appendChild(group);
+            }
+            
+            // Campus choices (4 slots)
+            const campusContainer = document.getElementById('campus-choices-container');
+            for (let i = 1; i <= 4; i++) {
+                const group = document.createElement('div');
+                group.className = 'mb-2 input-group';
+                group.innerHTML = `
+                    <span class="input-group-text">Choice ${i}</span>
+                    <select name="campuses" class="form-select" aria-label="Campus preference ${i}">
+                        <option value="" selected disabled>Select a campus</option>
+                        ${state.optionsData.campuses?.map(c => `<option value="${c}">${c}</option>`).join('') || ''}
+                    </select>
+                `;
+                campusContainer.appendChild(group);
+            }
+            
+            // A-Level principal subjects (3 slots)
+            const principalContainer = document.getElementById('principal-container');
+            const principalOptions = state.optionsData.a_subjects
+                ?.filter(s => s !== 'General Paper')
+                .map(s => `<option value="${s}">${s}</option>`)
+                .join('') || '';
+                
+            for (let i = 0; i < 3; i++) {
+                const group = document.createElement('div');
+                group.className = 'mb-2';
+                group.innerHTML = `
+                    <select name="a_principal" class="form-select principal-select" aria-label="Principal subject ${i+1}">
+                        <option value="" selected disabled>Select a subject</option>
+                        ${principalOptions}
+                    </select>
+                `;
+                principalContainer.appendChild(group);
+            }
+            
+            // A-Level subsidiary subject
+            const subsidiaryContainer = document.getElementById('subsidiary-container');
+            subsidiaryContainer.innerHTML = `
+                <select name="a_subsidiary" class="form-select subsidiary-select" aria-label="Subsidiary subject">
+                    <option value="" selected disabled>Select a subsidiary subject</option>
+                    ${state.optionsData.a_subsidiaries?.map(s => `<option value="${s}">${s}</option>`).join('') || ''}
+                </select>
+            `;
+            
+            // O-Level subjects (start with 2 rows)
+            const oLevelContainer = document.getElementById('o-level-container');
+            addORow();
+            addORow();
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Form validation on blur
+            const form = document.getElementById('registration-form');
+            form.addEventListener('blur', validateField, { capture: true });
+            
+            // Real-time course filtering
+            document.querySelectorAll('.course-select').forEach(select => {
+                select.addEventListener('change', filterCourseSelections);
+            });
+            
+            // Real-time subject filtering
+            document.querySelectorAll('.principal-select').forEach(select => {
+                select.addEventListener('change', filterSubjectSelections);
+            });
+            
+            // O-Level subject filtering
+            document.querySelectorAll('.o-sub-select').forEach(select => {
+                select.addEventListener('change', filterOSelections);
+            });
+            
+            // Enter key handling
+            form.addEventListener('keydown', handleEnterKey);
+            
+            // Form submission
+            form.addEventListener('submit', handleSubmit);
+        }
+        
+        // Validate individual field
+        function validateField(event) {
+            const field = event.target;
+            if (!field.validity) return;
+            
+            const errorSpan = field.nextElementSibling?.classList?.contains('form-error') 
+                ? field.nextElementSibling 
+                : field.parentElement?.querySelector('.form-error');
+            
+            if (field.validity.valid) {
+                field.classList.remove('is-invalid');
+                if (errorSpan) errorSpan.style.display = 'none';
+            } else {
+                field.classList.add('is-invalid');
+                if (errorSpan) errorSpan.style.display = 'block';
+            }
+        }
+        
+        // Filter course selections to prevent duplicates
+        function filterCourseSelections() {
+            const selects = document.querySelectorAll('.course-select');
+            const selected = Array.from(selects)
+                .map(s => s.value)
+                .filter(v => v);
+            
+            selects.forEach(select => {
+                const current = select.value;
+                const options = Array.from(select.options).slice(1); // Skip placeholder
+                
+                // Clear and rebuild options
+                select.innerHTML = '<option value="" selected disabled>Select a course</option>';
+                
+                state.optionsData.courses?.forEach(course => {
+                    if (course === current) {
+                        const opt = document.createElement('option');
+                        opt.value = course;
+                        opt.textContent = course;
+                        opt.selected = true;
+                        select.appendChild(opt);
+                    } else if (!selected.includes(course)) {
+                        const opt = document.createElement('option');
+                        opt.value = course;
+                        opt.textContent = course;
+                        select.appendChild(opt);
+                    }
+                });
+            });
+        }
+        
+        // Filter subject selections to prevent duplicates
+        function filterSubjectSelections() {
+            const selects = document.querySelectorAll('.principal-select');
+            const selected = Array.from(selects)
+                .map(s => s.value)
+                .filter(v => v);
+            
+            selects.forEach(select => {
+                const current = select.value;
+                const available = state.optionsData.a_subjects
+                    ?.filter(s => s !== 'General Paper' && (!selected.includes(s) || s === current))
+                    .map(s => `<option value="${s}" ${s === current ? 'selected' : ''}>${s}</option>`)
+                    .join('') || '';
+                
+                select.innerHTML = `<option value="" selected disabled>Select a subject</option>${available}`;
+            });
+        }
+        
+        // Filter O-Level selections
+        function filterOSelections() {
+            const selects = document.querySelectorAll('.o-sub-select');
+            const selected = Array.from(selects)
+                .map(s => s.value)
+                .filter(v => v);
+            
+            selects.forEach(select => {
+                const current = select.value;
+                const available = state.optionsData.o_subjects
+                    ?.map(s => `<option value="${s}" ${s === current ? 'selected' : ''}>${s}</option>`)
+                    .join('') || '';
+                
+                select.innerHTML = `<option value="" selected disabled>Select a subject</option>${available}`;
+            });
+        }
+        
+        // Add O-Level row
+        function addORow() {
+            const container = document.getElementById('o-level-container');
+            const row = document.createElement('div');
+            row.className = 'subject-row';
+            row.innerHTML = `
+                <select name="o_subjects" class="form-select form-select-sm o-sub-select" aria-label="O-Level subject">
+                    <option value="" selected disabled>Select a subject</option>
+                    ${state.optionsData.o_subjects?.map(s => `<option value="${s}">${s}</option>`).join('') || ''}
+                </select>
+                <div class="d-flex gap-2">
+                    <select name="o_grades" class="form-select form-select-sm" aria-label="O-Level grade">
+                        <option value="" selected disabled>Grade</option>
+                        ${state.optionsData.o_grades?.map(g => `<option value="${g}">${g}</option>`).join('') || ''}
+                    </select>
+                    <button type="button" class="btn-remove" aria-label="Remove this subject" onclick="this.closest('.subject-row').remove(); filterOSelections();">
+                        <i class="bi bi-x-lg" aria-hidden="true"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(row);
+            filterOSelections();
+        }
+        
+        // Handle Enter key navigation
+        function handleEnterKey(event) {
+            if (event.key === 'Enter' && event.target.tagName !== 'TEXTAREA') {
+                event.preventDefault();
+                
+                if (state.currentStep < state.totalSteps) {
+                    // Validate current step before proceeding
+                    if (validateCurrentStep()) {
+                        nextStep();
+                    }
+                }
+                // On final step, let form submit normally
+            }
+        }
+        
+        // Navigate to next step
+        function nextStep() {
+            if (!validateCurrentStep()) return;
+            
+            const currentCard = document.querySelector(`.wizard-card[data-step="${state.currentStep}"]`);
+            currentCard?.classList.remove('active');
+            
+            state.currentStep++;
+            updateProgress();
+            
+            const nextCard = document.querySelector(`.wizard-card[data-step="${state.currentStep}"]`);
+            nextCard?.classList.add('active');
+            
+            // Update display name on final step
+            if (state.currentStep === 10) {
+                const firstName = document.querySelector('input[name="first_name"]')?.value || '';
+                const lastName = document.querySelector('input[name="last_name"]')?.value || '';
+                document.getElementById('display-name').textContent = `${lastName} ${firstName}`.trim() || 'Student';
+            }
+            
+            // Focus first input in new step for accessibility
+            const firstInput = nextCard?.querySelector('input, select, textarea');
+            firstInput?.focus();
+        }
+        
+        // Navigate to previous step
+        function prevStep() {
+            const currentCard = document.querySelector(`.wizard-card[data-step="${state.currentStep}"]`);
+            currentCard?.classList.remove('active');
+            
+            state.currentStep = Math.max(1, state.currentStep - 1);
+            updateProgress();
+            
+            const prevCard = document.querySelector(`.wizard-card[data-step="${state.currentStep}"]`);
+            prevCard?.classList.add('active');
+            
+            // Focus first input for accessibility
+            const firstInput = prevCard?.querySelector('input, select, textarea');
+            firstInput?.focus();
+        }
+        
+        // Update progress bar
+        function updateProgress() {
+            const progress = (state.currentStep / state.totalSteps) * 100;
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = `${progress}%`;
+            progressBar.setAttribute('aria-valuenow', Math.round(progress));
+        }
+        
+        // Validate current step
+        function validateCurrentStep() {
+            const card = document.querySelector(`.wizard-card[data-step="${state.currentStep}"]`);
+            if (!card) return false;
+            
+            const requiredFields = card.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    const errorSpan = field.nextElementSibling?.classList?.contains('form-error') 
+                        ? field.nextElementSibling 
+                        : field.parentElement?.querySelector('.form-error');
+                    if (errorSpan) errorSpan.style.display = 'block';
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                    const errorSpan = field.nextElementSibling?.classList?.contains('form-error') 
+                        ? field.nextElementSibling 
+                        : field.parentElement?.querySelector('.form-error');
+                    if (errorSpan) errorSpan.style.display = 'none';
+                }
+            });
+            
+            return isValid;
+        }
+        
+        // Handle form submission
+        async function handleSubmit(event) {
+            event.preventDefault();
+            
+            if (!validateCurrentStep()) {
+                showError('Please complete all required fields before submitting.');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submit-btn');
+            const submitText = document.getElementById('submit-text');
+            const submitSpinner = document.getElementById('submit-spinner');
+            
+            // Disable button and show loading state
+            submitBtn.disabled = true;
+            submitText.textContent = 'Registering...';
+            submitSpinner.style.display = 'inline-block';
+            
+            try {
+                // Prepare theme data
+                prepareThemeSubmission();
+                
+                // Submit form normally (native submission for better UX)
+                event.target.submit();
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                showError('Registration failed. Please try again.');
+                
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitText.textContent = 'Complete Registration';
+                submitSpinner.style.display = 'none';
+            }
+        }
+        
+        // Prepare theme data for submission
+        function prepareThemeSubmission() {
+            document.getElementById('theme_type_input').value = state.selectedTheme;
+            
+            if (state.selectedTheme === 'custom') {
+                document.getElementById('theme_bg_input').value = document.getElementById('custom-bg').value;
+                document.getElementById('theme_text_input').value = document.getElementById('custom-text').value;
+                document.getElementById('theme_font_input').value = document.getElementById('custom-font').value;
+            }
+            
+            return true;
+        }
+        
+        // Theme selection logic
+        function selectTheme(themeName) {
+            state.selectedTheme = themeName;
+            
+            // Update UI
+            document.querySelectorAll('.theme-option').forEach(option => {
+                const isSelected = option.dataset.theme === themeName;
+                option.classList.toggle('selected', isSelected);
+                option.setAttribute('aria-checked', isSelected);
+                option.setAttribute('tabindex', isSelected ? '0' : '-1');
+            });
+            
+            // Show/hide custom panel
+            const customPanel = document.getElementById('custom-theme-panel');
+            customPanel.style.display = themeName === 'custom' ? 'block' : 'none';
+            
+            // Apply preview class to body for visual feedback
+            document.body.className = '';
+            if (themeName !== 'light') {
+                document.body.classList.add(`theme-${themeName}-active`);
+            }
+        }
+        
+        // Initialize theme selection with keyboard support
+        function initThemeSelection() {
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectTheme(option.dataset.theme);
+                    }
+                });
+            });
+        }
+        
+        // Setup keyboard navigation for wizard
+        function setupKeyboardNav() {
+            document.addEventListener('keydown', (e) => {
+                // Arrow keys for theme selection
+                if (e.target.classList.contains('theme-option')) {
+                    const options = Array.from(document.querySelectorAll('.theme-option'));
+                    const currentIndex = options.indexOf(e.target);
+                    
+                    if (e.key === 'ArrowRight' && currentIndex < options.length - 1) {
+                        e.preventDefault();
+                        options[currentIndex + 1].focus();
+                    } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                        e.preventDefault();
+                        options[currentIndex - 1].focus();
+                    }
+                }
+                
+                // Escape to go back
+                if (e.key === 'Escape' && state.currentStep > 1) {
+                    e.preventDefault();
+                    prevStep();
+                }
+            });
+        }
+        
+        // Show error message
+        function showError(message) {
+            // Create or reuse error container
+            let errorContainer = document.getElementById('form-error-container');
+            if (!errorContainer) {
+                errorContainer = document.createElement('div');
+                errorContainer.id = 'form-error-container';
+                errorContainer.className = 'alert alert-danger mt-3';
+                errorContainer.setAttribute('role', 'alert');
+                document.querySelector('.wizard-card[data-step="10"]')?.prepend(errorContainer);
+            }
+            
+            errorContainer.textContent = message;
+            errorContainer.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                errorContainer.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Start registration flow
+        function startRegistration() {
+            const startScreen = document.getElementById('start-screen');
+            const vortex = document.getElementById('vortex-overlay');
+            const welcomeText = document.getElementById('welcome-text');
+            const wizardArea = document.getElementById('wizard-area');
+            
+            // Animate out start screen
+            startScreen.style.opacity = '0';
+            
+            setTimeout(() => {
+                startScreen.style.display = 'none';
+                
+                // Show vortex animation
+                vortex.classList.add('active');
+                
+                setTimeout(() => {
+                    welcomeText.textContent = "Welcome to CareerNet";
+                    welcomeText.classList.add('visible');
+                }, 500);
+                
+                setTimeout(() => {
+                    vortex.classList.remove('active');
+                    wizardArea.classList.add('active');
+                    
+                    // Focus first input for accessibility
+                    document.querySelector('input[name="last_name"]')?.focus();
+                }, 2000);
+            }, 500);
+        }
+        
+        // Attach start button handler
+        document.getElementById('start-btn')?.addEventListener('click', startRegistration);
+    </script>
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Student Registration | HCLV CareerNet",
+      "description": "Register for Holy Cross Lake View Careers Office to access university guidance, course recommendations, and academic tracking.",
+      "publisher": {
+        "@type": "EducationalOrganization",
+        "name": "Holy Cross Lake View Senior Secondary School"
+      },
+      "potentialAction": {
+        "@type": "CreateAction",
+        "target": "{{ url_for('auth.register', _external=true) }}"
+      }
+    }
+    </script>
+</body>
+</html>
