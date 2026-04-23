@@ -477,7 +477,7 @@
                     
                     <div class="stats-row">
                         <div class="stat-item">
-                            <span class="stat-number editable" data-key="landing_stat_1_value" id="counter" data-target="30">{{ site_content.get('landing_stat_1_value', '30+') }}</span>
+                            <span class="stat-number editable count-up" data-key="landing_stat_1_value" data-target="30" data-suffix="+">{{ site_content.get('landing_stat_1_value', '30+') }}</span>
                             <span class="stat-label editable" data-key="landing_stat_1_label">{{ site_content.get('landing_stat_1_label', 'Years of Excellence') }}</span>
                         </div>
                         <div class="stat-item">
@@ -485,7 +485,7 @@
                             <span class="stat-label editable" data-key="landing_stat_2_label">{{ site_content.get('landing_stat_2_label', 'In Eastern Region') }}</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number editable" data-key="landing_stat_3_value">{{ site_content.get('landing_stat_3_value', '1993') }}</span>
+                            <span class="stat-number editable count-up" data-key="landing_stat_3_value" data-target="1993" data-start="1900" data-duration="2500">{{ site_content.get('landing_stat_3_value', '1993') }}</span>
                             <span class="stat-label editable" data-key="landing_stat_3_label">{{ site_content.get('landing_stat_3_label', 'Year Founded') }}</span>
                         </div>
                     </div>
@@ -587,27 +587,61 @@
             // Auto-advance every 5 seconds
             setInterval(nextSlide, 5000);
         });
-        const counterElement = document.getElementById('counter');
-    const targetValue = parseInt(counterElement.getAttribute('data-target'));
-    let currentValue = 0;
+        // Scroll-triggered count-up for stats with the .count-up class.
+        // Configurable via data attributes:
+        //   data-target   = final number (required)
+        //   data-start    = starting number (default 0)
+        //   data-suffix   = appended after final value (e.g. "+")
+        //   data-prefix   = prepended (e.g. "#")
+        //   data-duration = animation duration in ms (default 2000)
+        (function () {
+            const counters = document.querySelectorAll('.count-up');
+            if (!counters.length) return;
 
-    const duration = 2000; 
-    const frameDuration = 1000 / 60; 
-    const totalFrames = Math.round(duration / frameDuration);
-    const increment = targetValue / totalFrames;
+            const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 
-    const animate = () => {
-        currentValue += increment;
-        if (currentValue < targetValue) {
-            counterElement.innerText = Math.ceil(currentValue);
-            requestAnimationFrame(animate);
-        } else {
-            // Appends the plus sign once the target is reached
-            counterElement.innerText = targetValue + "+";
-        }
-    };
+            function runCounter(el) {
+                if (el.dataset.animated === '1') return;
+                el.dataset.animated = '1';
 
-    animate();
+                const target   = parseFloat(el.dataset.target) || 0;
+                const start    = parseFloat(el.dataset.start)  || 0;
+                const suffix   = el.dataset.suffix || '';
+                const prefix   = el.dataset.prefix || '';
+                const duration = parseInt(el.dataset.duration, 10) || 2000;
+                const startTs  = performance.now();
+
+                function tick(now) {
+                    const elapsed = now - startTs;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const value = start + (target - start) * easeOutCubic(progress);
+                    el.textContent = prefix + Math.round(value) + (progress === 1 ? suffix : '');
+                    if (progress < 1) requestAnimationFrame(tick);
+                }
+                requestAnimationFrame(tick);
+            }
+
+            // Show the start value before the user scrolls into view
+            counters.forEach(el => {
+                const start  = parseFloat(el.dataset.start)  || 0;
+                const prefix = el.dataset.prefix || '';
+                el.textContent = prefix + start;
+            });
+
+            if ('IntersectionObserver' in window) {
+                const io = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            runCounter(entry.target);
+                            io.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.4 });
+                counters.forEach(el => io.observe(el));
+            } else {
+                counters.forEach(runCounter);
+            }
+        })();
     </script>
 </body>
 </html>
