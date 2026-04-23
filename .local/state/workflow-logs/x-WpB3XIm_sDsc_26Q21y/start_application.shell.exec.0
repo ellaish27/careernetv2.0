@@ -1,0 +1,56 @@
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.31.72.98:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 140-221-285
+127.0.0.1 - - [22/Apr/2026 13:27:49] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Apr/2026 13:27:49] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Apr/2026 13:27:50] "GET /static/logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [22/Apr/2026 13:27:50] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Apr/2026 13:27:51] "[36mGET /static/logo.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:27:51] "GET /static/school/school1.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [22/Apr/2026 13:27:51] "GET /static/school/school3.webp HTTP/1.1" 200 -
+127.0.0.1 - - [22/Apr/2026 13:27:51] "GET /static/school/school4.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [22/Apr/2026 13:27:51] "GET /static/school/school2.jpg HTTP/1.1" 200 -
+127.0.0.1 - - [22/Apr/2026 13:27:51] "[36mGET /static/school/school1.jpg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:27:51] "[36mGET /static/school/school2.jpg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:27:52] "[36mGET /static/school/school3.webp HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:27:52] "[36mGET /static/school/school4.jpg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:28:22] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [22/Apr/2026 13:28:23] "[36mGET /static/logo.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:28:33] "[31m[1mPOST /login HTTP/1.1[0m" 400 -
+127.0.0.1 - - [22/Apr/2026 13:28:41] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Apr/2026 13:28:42] "[36mGET /static/logo.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:28:42] "[36mGET /static/school/school1.jpg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:28:42] "[36mGET /static/school/school3.webp HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:28:42] "[36mGET /static/school/school2.jpg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:28:42] "[36mGET /static/school/school4.jpg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:28:43] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [22/Apr/2026 13:28:44] "[36mGET /static/logo.png HTTP/1.1[0m" 304 -
+ * Detected change in '/home/runner/workspace/app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 140-221-285
+ * Detected change in '/home/runner/workspace/app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 140-221-285
+127.0.0.1 - - [22/Apr/2026 13:29:11] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Apr/2026 13:29:12] "[36mGET /static/logo.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:29:12] "[36mGET /static/school/school3.webp HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:29:12] "[36mGET /static/school/school4.jpg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:29:12] "[36mGET /static/school/school2.jpg HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Apr/2026 13:29:12] "[36mGET /static/school/school1.jpg HTTP/1.1[0m" 304 -
+ * Detected change in '/home/runner/workspace/routes/su.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 140-221-285
+ * Detected change in '/home/runner/workspace/routes/su.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 140-221-285
