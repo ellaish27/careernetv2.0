@@ -12,6 +12,7 @@ from utils import calculate_combination_code
 import logic
 import os
 import json
+from datetime import datetime
 
 
 def create_app():
@@ -62,7 +63,8 @@ def create_app():
             site_theme=site_theme,
             user_theme=user_theme,
             combination_code=combination_code,
-            custom_pages=CustomPage.query.filter_by(is_active=True).order_by(CustomPage.created_at.desc()).all()
+            custom_pages=CustomPage.query.filter_by(is_active=True).order_by(CustomPage.created_at.desc()).all(),
+            now=datetime.utcnow()
         )
 
     # 4. Routes
