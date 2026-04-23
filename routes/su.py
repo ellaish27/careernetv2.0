@@ -9,6 +9,7 @@ import os
 import re
 
 ALLOWED_SCHOOL_EXT = {'jpg', 'jpeg', 'png', 'webp', 'gif'}
+ALLOWED_IMG_EXT = {'jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'}
 
 
 def _school_dir():
@@ -17,14 +18,44 @@ def _school_dir():
     return path
 
 
-def _list_school_images():
-    path = _school_dir()
+def _uploads_dir():
+    path = os.path.join(current_app.static_folder, 'uploads')
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
+def _list_dir_images(path, allowed):
     files = []
-    for fname in sorted(os.listdir(path)):
-        ext = fname.rsplit('.', 1)[-1].lower() if '.' in fname else ''
-        if ext in ALLOWED_SCHOOL_EXT:
-            files.append(fname)
+    if os.path.isdir(path):
+        for fname in sorted(os.listdir(path)):
+            ext = fname.rsplit('.', 1)[-1].lower() if '.' in fname else ''
+            if ext in allowed:
+                files.append(fname)
     return files
+
+
+def _list_school_images():
+    return _list_dir_images(_school_dir(), ALLOWED_SCHOOL_EXT)
+
+
+def _list_library_images():
+    return _list_dir_images(_uploads_dir(), ALLOWED_IMG_EXT)
+
+
+def _save_unique(file_storage, target_dir):
+    """Save an uploaded file with a sanitized, non-colliding filename. Returns final filename."""
+    safe_name = secure_filename(file_storage.filename or '')
+    if not safe_name:
+        return None
+    base, dot, ex = safe_name.rpartition('.')
+    dest = os.path.join(target_dir, safe_name)
+    i = 2
+    while os.path.exists(dest):
+        safe_name = f"{base}-{i}.{ex}" if dot else f"{safe_name}-{i}"
+        dest = os.path.join(target_dir, safe_name)
+        i += 1
+    file_storage.save(dest)
+    return safe_name
 
 # ✅ FIX: Use __name__ (double underscores) for proper blueprint registration
 su_bp = Blueprint('su', __name__, url_prefix='/su')
@@ -52,13 +83,23 @@ def dashboard():
         {"name": "Admin Dashboard", "url": url_for("admin.dashboard"), "editable": "App Data"},
         {"name": "SU Dashboard", "url": url_for("su.dashboard"), "editable": "Control Panel"},
     ]
+    # Group all SiteContent keys by their prefix (e.g. landing_, site_, welcome_)
+    all_content = SiteContent.query.order_by(SiteContent.key).all()
+    grouped_content = {}
+    for c in all_content:
+        prefix = c.key.split('_', 1)[0] if '_' in c.key else 'general'
+        grouped_content.setdefault(prefix, []).append(c)
+
+    library_images = _list_library_images()
     return render_template(
         'su_dashboard.html',
         site_content=site_content,
         site_theme=site_theme,
         pages=pages,
         core_pages=core_pages,
-        school_images=_list_school_images()
+        school_images=_list_school_images(),
+        grouped_content=grouped_content,
+        library_images=library_images
     )
 
 
@@ -272,3 +313,68 @@ def create_user():
         db.session.commit()
         flash(f'User {username} created as {role}.', 'success')
     return redirect(url_for('su.dashboard'))
+
+@su_bp.route('/delete_content', methods=['POST'])
+@login_required
+@su_required
+def delete_content():
+    """AJAX: Delete a SiteContent key."""
+    data = request.get_json() or {}
+    key = (data.get('key') or '').strip()
+    if not key:
+        return jsonify({'status': 'error', 'message': 'Missing key'}), 400
+    item = SiteContent.query.filter_by(key=key).first()
+    if not item:
+        return jsonify({'status': 'error', 'message': 'Key not found'}), 404
+    db.session.delete(item)
+    db.session.commit()
+    return jsonify({'status': 'success'})
+
+
+@su_bp.route('/upload_image', methods=['POST'])
+@login_required
+@su_required
+def upload_image():
+    """Upload an image to the general library (static/uploads/).
+    Supports both regular AJAX and TinyMCE's images_upload_url contract:
+    returns JSON {"location": "<absolute URL>"} on success.
+    """
+    f = request.files.get('file') or request.files.get('image') or request.files.get('images')
+    if not f or not f.filename:
+        return jsonify({'error': 'No file provided'}), 400
+    ext = f.filename.rsplit('.', 1)[-1].lower() if '.' in f.filename else ''
+    if ext not in ALLOWED_IMG_EXT:
+        return jsonify({'error': f'Unsupported file type .{ext}'}), 400
+    final_name = _save_unique(f, _uploads_dir())
+    if not final_name:
+        return jsonify({'error': 'Could not save file'}), 400
+    location = url_for('static', filename=f'uploads/{final_name}', _external=True)
+    return jsonify({'location': location, 'filename': final_name,
+                    'url': url_for('static', filename=f'uploads/{final_name}')})
+
+
+@su_bp.route('/delete_image', methods=['POST'])
+@login_required
+@su_required
+def delete_image():
+    """AJAX: Delete an image from the library (static/uploads/)."""
+    data = request.get_json(silent=True) or request.form
+    filename = (data.get('filename') or '').strip()
+    safe = secure_filename(filename)
+    if not safe:
+        return jsonify({'status': 'error', 'message': 'Invalid filename'}), 400
+    path = os.path.join(_uploads_dir(), safe)
+    if not os.path.isfile(path):
+        return jsonify({'status': 'error', 'message': 'Not found'}), 404
+    os.remove(path)
+    return jsonify({'status': 'success'})
+
+
+@su_bp.route('/list_images', methods=['GET'])
+@login_required
+@su_required
+def list_images():
+    """AJAX: Returns the current image library as JSON."""
+    files = [{'name': n, 'url': url_for('static', filename=f'uploads/{n}')}
+             for n in _list_library_images()]
+    return jsonify({'images': files})
