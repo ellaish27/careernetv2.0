@@ -107,6 +107,19 @@ def create_app():
             app.logger.error(f"Failed to load options.json: {e}")
             return jsonify({}), 404
 
+    @app.after_request
+    def force_inline_static(response):
+        """Force browsers to render static files inline (best-effort anti-download)."""
+        try:
+            if request.path.startswith('/static/'):
+                cd = response.headers.get('Content-Disposition', '')
+                if 'attachment' in cd.lower() or not cd:
+                    response.headers['Content-Disposition'] = 'inline'
+                response.headers['X-Content-Type-Options'] = 'nosniff'
+        except Exception:
+            pass
+        return response
+
     @app.errorhandler(404)
     def not_found_error(error):
         if request.is_json:
@@ -126,10 +139,16 @@ def init_db():
         if not SiteContent.query.first():
             db.session.add_all([
                 SiteContent(key='site_title', value='HCLV CareerNet'),
-                SiteContent(key='welcome_text', value='Education for Service')
+                SiteContent(key='welcome_text', value='Education for Service'),
+                SiteContent(key='pujab_pdf_url', value='/static/uploads/PUJAB 2022-2023.pdf')
             ])
             db.session.commit()
             print("✅ Seeded default SiteContent")
+
+        # Idempotent: ensure pujab_pdf_url exists even on legacy DBs
+        if not SiteContent.query.filter_by(key='pujab_pdf_url').first():
+            db.session.add(SiteContent(key='pujab_pdf_url', value='/static/uploads/PUJAB 2022-2023.pdf'))
+            db.session.commit()
             
         # Seed Site Theme
         if not SiteTheme.query.first():

@@ -384,6 +384,14 @@
         }
         .page-header h4 { font-weight: 700; letter-spacing: .1px; }
         .user-badge { color: var(--muted-text); border: 1px solid var(--border-color); }
+        /* Best-effort content protection */
+        .protected-content img, .protected-content iframe, .protected-content embed {
+            -webkit-user-drag: none; user-drag: none;
+        }
+        @media print {
+            .protected-content { display: none !important; }
+        }
+
         .edit-mode-active .editable {
             outline: 2px dashed #f59e0b;
             outline-offset: 2px;
@@ -518,6 +526,9 @@
                 </a>
                 <a href="{{ url_for('student.weighting_system') }}" class="sidebar-link {% if request.endpoint == 'student.weighting_system' %}active{% endif %}">
                     <i class="bi bi-calculator-fill"></i> Weighting System
+                </a>
+                <a href="{{ url_for('student.my_courses') }}" class="sidebar-link {% if request.endpoint == 'student.my_courses' %}active{% endif %}">
+                    <i class="bi bi-mortarboard-fill"></i> My Courses
                 </a>
 
                 <div class="sidebar-heading text-muted small mb-2 mt-3 ps-3 text-uppercase">Guidance</div>
@@ -795,6 +806,22 @@
         }
 
         applySavedLiveText();
+
+        // Auto-enable Live Edit when arriving via SU "Open" button (?su_edit=1)
+        try {
+            const _params = new URLSearchParams(window.location.search);
+            if (_params.get('su_edit') === '1' && document.getElementById('editModeSwitch')) {
+                setTimeout(() => {
+                    const sw = document.getElementById('editModeSwitch');
+                    if (sw && !sw.checked) { sw.checked = true; sw.dispatchEvent(new Event('change')); }
+                    const banner = document.createElement('div');
+                    banner.className = 'alert alert-warning text-center mb-0 py-2 small';
+                    banner.style.cssText = 'position:sticky;top:0;z-index:1050;border-radius:0;';
+                    banner.innerHTML = '<i class="bi bi-pencil-square me-1"></i><strong>Live Edit ON.</strong> Click highlighted text to edit. Toggle off to save.';
+                    document.body.prepend(banner);
+                }, 250);
+            }
+        } catch(e) {}
 
         // Live Edit Mode for SuperUser
         function toggleEditMode() {

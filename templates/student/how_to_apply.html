@@ -55,4 +55,25 @@
         </div>
     </div>
 </div>
+
+{% set pdf_url = site_content.get('pujab_pdf_url') or url_for('static', filename='uploads/PUJAB 2022-2023.pdf') %}
+<div class="card shadow-sm mt-4 protected-content">
+    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="bi bi-file-pdf-fill text-danger me-2"></i>Latest PUJAB Application Booklet</h5>
+        {% if current_user.role == 'SuperUser' %}
+            <a href="{{ url_for('su.dashboard') }}#text-panel" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-pencil-square"></i> Change PDF (key: <code>pujab_pdf_url</code>)
+            </a>
+        {% endif %}
+    </div>
+    <div class="card-body p-0 position-relative" oncontextmenu="return false;">
+        <div class="position-absolute top-0 start-0 w-100 text-center py-1 small text-white"
+             style="background:rgba(13,110,253,.65); z-index:5; pointer-events:none;">
+            Courtesy of HCLV CareerNet &mdash; viewing only
+        </div>
+        <iframe src="{{ pdf_url }}#toolbar=0&navpanes=0&scrollbar=1"
+                style="width:100%; height:80vh; border:0; display:block;"
+                title="PUJAB Booklet"></iframe>
+    </div>
+</div>
 {% endblock %}

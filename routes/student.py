@@ -65,6 +65,52 @@ def about_careers():
     return render_template('student/about_careers.html')
 
 
+@student_bp.route('/my_courses')
+@login_required
+def my_courses():
+    """Show eligibility for the student's selected course wishes plus alternative
+    courses they're qualified for based on current weights."""
+    if current_user.role != 'Student':
+        return redirect(url_for('admin.dashboard'))
+
+    profile = Student.query.filter_by(user_id=current_user.id).first()
+    if not profile:
+        return render_template('student/my_courses.html', student=None)
+
+    final_records = AcademicRecord.query.filter_by(student_id=profile.id, paper_code='FINAL').all()
+    a_levels = {r.subject: r.grade for r in final_records}
+    if not a_levels and profile.a_level_json:
+        a_levels = json.loads(profile.a_level_json)
+
+    s_data = {
+        'a_levels': a_levels,
+        'o_levels': json.loads(profile.o_level_json) if profile.o_level_json else {},
+        'gender': profile.gender,
+        'subs': profile.subsidiaries
+    }
+    full_report, o_bonus = logic.get_student_report(s_data)
+
+    wishes_raw = json.loads(profile.course_wishes) if profile.course_wishes else []
+    wishes_lower = [str(w).strip().lower() for w in wishes_raw]
+
+    def is_wished(item):
+        return (item['course'].lower() in wishes_lower) or (item['code'].lower() in wishes_lower)
+
+    selected = [r for r in full_report if is_wished(r)]
+    alternatives = [r for r in full_report
+                    if r['status'] in ('Qualified', 'Borderline') and not is_wished(r)]
+
+    return render_template(
+        'student/my_courses.html',
+        student=profile,
+        selected=selected,
+        alternatives=alternatives,
+        wishes_raw=wishes_raw,
+        a_levels=a_levels,
+        o_bonus=o_bonus
+    )
+
+
 @student_bp.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():

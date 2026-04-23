@@ -29,6 +29,17 @@ def su_required(f):
         return f(*args, **kwargs)
     return decorated
 
+def main_su_required(f):
+    """Restricts a view to the bootstrap SuperUser (username 'su2026')."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.role != 'SuperUser' or current_user.username != 'su2026':
+            flash('Only the main SuperUser (su2026) can perform this action.', 'danger')
+            return redirect(url_for('su.dashboard'))
+        return f(*args, **kwargs)
+    return decorated
+
+
 def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):

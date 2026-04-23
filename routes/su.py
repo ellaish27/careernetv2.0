@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 from extensions import db
 from models import University, SiteContent, SiteTheme, User, CustomPage
-from utils import su_required
+from utils import su_required, main_su_required
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 import os
@@ -10,6 +10,7 @@ import re
 
 ALLOWED_SCHOOL_EXT = {'jpg', 'jpeg', 'png', 'webp', 'gif'}
 ALLOWED_IMG_EXT = {'jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'}
+ALLOWED_LIB_EXT = ALLOWED_IMG_EXT | {'pdf'}
 
 
 def _school_dir():
@@ -39,7 +40,8 @@ def _list_school_images():
 
 
 def _list_library_images():
-    return _list_dir_images(_uploads_dir(), ALLOWED_IMG_EXT)
+    """Files in the SU media library (images + PDFs)."""
+    return _list_dir_images(_uploads_dir(), ALLOWED_LIB_EXT)
 
 
 def _save_unique(file_storage, target_dir):
@@ -91,6 +93,19 @@ def dashboard():
         grouped_content.setdefault(prefix, []).append(c)
 
     library_images = _list_library_images()
+
+    # Group image-like content keys by page prefix for the new "Page Images" tab.
+    image_keys_by_page = {}
+    for c in all_content:
+        k = c.key
+        if k.endswith(('_image', '_logo', '_url', '_bg', '_photo', '_pdf')):
+            prefix = k.split('_', 1)[0] if '_' in k else 'general'
+            image_keys_by_page.setdefault(prefix, []).append(c)
+
+    # User management (visible to all SUs; deletion gated to su2026)
+    managed_users = User.query.filter(User.role.in_(['Administrator', 'SuperUser'])).order_by(User.role, User.username).all()
+    is_main_su = current_user.username == 'su2026'
+
     return render_template(
         'su_dashboard.html',
         site_content=site_content,
@@ -99,7 +114,10 @@ def dashboard():
         core_pages=core_pages,
         school_images=_list_school_images(),
         grouped_content=grouped_content,
-        library_images=library_images
+        library_images=library_images,
+        image_keys_by_page=image_keys_by_page,
+        managed_users=managed_users,
+        is_main_su=is_main_su
     )
 
 
@@ -343,7 +361,7 @@ def upload_image():
     if not f or not f.filename:
         return jsonify({'error': 'No file provided'}), 400
     ext = f.filename.rsplit('.', 1)[-1].lower() if '.' in f.filename else ''
-    if ext not in ALLOWED_IMG_EXT:
+    if ext not in ALLOWED_LIB_EXT:
         return jsonify({'error': f'Unsupported file type .{ext}'}), 400
     final_name = _save_unique(f, _uploads_dir())
     if not final_name:
@@ -378,3 +396,25 @@ def list_images():
     files = [{'name': n, 'url': url_for('static', filename=f'uploads/{n}')}
              for n in _list_library_images()]
     return jsonify({'images': files})
+
+
+@su_bp.route('/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+@main_su_required
+def delete_user(user_id):
+    """Delete an Administrator or SuperUser. Only the bootstrap SU 'su2026' can do this."""
+    target = User.query.get_or_404(user_id)
+    if target.username == 'su2026':
+        flash('The main SuperUser (su2026) cannot be deleted.', 'danger')
+        return redirect(url_for('su.dashboard') + '#users-panel')
+    if target.role not in ['Administrator', 'SuperUser']:
+        flash('Use the Students area to manage student accounts.', 'warning')
+        return redirect(url_for('su.dashboard') + '#users-panel')
+    if target.id == current_user.id:
+        flash('You cannot delete your own account while logged in.', 'danger')
+        return redirect(url_for('su.dashboard') + '#users-panel')
+    name = target.username
+    db.session.delete(target)
+    db.session.commit()
+    flash(f'User "{name}" deleted.', 'success')
+    return redirect(url_for('su.dashboard') + '#users-panel')
