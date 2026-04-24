@@ -867,9 +867,10 @@
                 headers: {'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN},
                 body: JSON.stringify({[key]: input.value})
             }).then(r => r.json()).then(j => {
-                save.innerHTML = j.success ? '<i class="bi bi-check-lg"></i>' : '<i class="bi bi-x-lg"></i>';
-                save.classList.toggle('btn-success', !!j.success);
-                save.classList.toggle('btn-danger', !j.success);
+                const ok = (j && j.status === 'success');
+                save.innerHTML = ok ? '<i class="bi bi-check-lg"></i>' : '<i class="bi bi-x-lg"></i>';
+                save.classList.toggle('btn-success', ok);
+                save.classList.toggle('btn-danger', !ok);
                 setTimeout(() => { save.innerHTML = original; save.disabled = false; save.classList.remove('btn-danger'); save.classList.add('btn-success'); }, 1500);
             }).catch(() => { save.innerHTML = original; save.disabled = false; });
         }

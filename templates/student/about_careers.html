@@ -1,41 +1,93 @@
 {% extends "base.html" %}
-{% block page_title %}About Careers Office{% endblock %}
+{% block page_title %}{{ site_content.get('about_careers_page_title', 'About Careers Office') }}{% endblock %}
 {% block app_content %}
 <div class="card shadow-sm">
     <div class="card-header bg-transparent">
-        <h4 class="mb-0"><i class="bi bi-building me-2 text-gold"></i>The Careers Office</h4>
+        <h4 class="mb-0">
+            <i class="bi bi-building me-2 text-gold"></i>
+            <span class="editable" data-key="about_careers_heading">{{ site_content.get('about_careers_heading', 'The Careers Office') }}</span>
+        </h4>
     </div>
     <div class="card-body">
-        <p class="lead">The Careers Office at Holy Cross Lake View SSS is dedicated to guiding students through the complex transition from secondary education to higher institutions and professional life.</p>
-        
-        <h5 class="mt-4 text-primary">Our Mission</h5>
-        <p>To provide comprehensive career guidance, university application support, and personal development resources to ensure every student finds their rightful place in society.</p>
 
-        <h5 class="mt-4 text-primary">Key Personnel</h5>
+        {% set hero_img = site_content.get('about_careers_hero_image', '') %}
+        {% if hero_img %}
+        <div class="text-center mb-4">
+            <img src="{{ hero_img }}" alt="Careers Office"
+                 class="img-fluid rounded shadow-sm"
+                 style="max-height: 320px; object-fit: cover; width: 100%;"
+                 onerror="this.style.display='none'">
+        </div>
+        {% endif %}
+
+        <p class="lead editable" data-key="about_careers_intro">{{ site_content.get('about_careers_intro', 'The Careers Office at Holy Cross Lake View SSS is dedicated to guiding students through the complex transition from secondary education to higher institutions and professional life.') }}</p>
+
+        <h5 class="mt-4 text-primary editable" data-key="about_careers_mission_title">{{ site_content.get('about_careers_mission_title', 'Our Mission') }}</h5>
+        <p class="editable" data-key="about_careers_mission_text">{{ site_content.get('about_careers_mission_text', 'To provide comprehensive career guidance, university application support, and personal development resources to ensure every student finds their rightful place in society.') }}</p>
+
+        <h5 class="mt-4 text-primary editable" data-key="about_careers_personnel_title">{{ site_content.get('about_careers_personnel_title', 'Key Personnel') }}</h5>
         <div class="row mt-3">
-            <div class="col-md-4 mb-3">
-                <div class="card text-center p-3">
-                    <i class="bi bi-person-circle display-4 text-secondary"></i>
-                    <h6 class="mt-2">Mr. John Doe</h6>
-                    <small class="text-muted">Head of Careers & Guidance</small>
+            {# Personnel cards 1 to 3 — only render when at least the name is set #}
+            {% for i in [1, 2, 3] %}
+                {% set p_name = site_content.get('about_careers_personnel' ~ i ~ '_name', '') %}
+                {% set p_role = site_content.get('about_careers_personnel' ~ i ~ '_role', '') %}
+                {% set p_img  = site_content.get('about_careers_personnel' ~ i ~ '_image', '') %}
+                {# Provide sensible defaults for the first two so the page never looks empty #}
+                {% if i == 1 and not p_name %}{% set p_name = 'Mr. John Doe' %}{% set p_role = 'Head of Careers & Guidance' %}{% endif %}
+                {% if i == 2 and not p_name %}{% set p_name = 'Ms. Jane Smith' %}{% set p_role = 'University Liaison Officer' %}{% endif %}
+                {% if p_name or p_role or p_img %}
+                <div class="col-md-4 mb-3">
+                    <div class="card text-center p-3 h-100 shadow-sm">
+                        {% if p_img %}
+                            <img src="{{ p_img }}" alt="{{ p_name }}"
+                                 class="rounded-circle mx-auto"
+                                 style="width: 110px; height: 110px; object-fit: cover; border: 3px solid var(--accent-color);"
+                                 onerror="this.outerHTML='<i class=&quot;bi bi-person-circle display-4 text-secondary&quot;></i>'">
+                        {% else %}
+                            <i class="bi bi-person-circle display-4 text-secondary"></i>
+                        {% endif %}
+                        <h6 class="mt-2 editable" data-key="about_careers_personnel{{ i }}_name">{{ p_name }}</h6>
+                        <small class="text-muted editable" data-key="about_careers_personnel{{ i }}_role">{{ p_role }}</small>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card text-center p-3">
-                    <i class="bi bi-person-circle display-4 text-secondary"></i>
-                    <h6 class="mt-2">Ms. Jane Smith</h6>
-                    <small class="text-muted">University Liaison Officer</small>
-                </div>
-            </div>
+                {% endif %}
+            {% endfor %}
         </div>
 
-        <h5 class="mt-4 text-primary">Services Offered</h5>
+        <h5 class="mt-4 text-primary editable" data-key="about_careers_services_title">{{ site_content.get('about_careers_services_title', 'Services Offered') }}</h5>
         <ul>
-            <li>PUJAB / Application form filling assistance.</li>
-            <li>Subject combination advice for A-Level.</li>
-            <li>Psychometric testing and career aptitude analysis.</li>
-            <li>University open day coordination.</li>
+            <li class="editable" data-key="about_careers_service_1">{{ site_content.get('about_careers_service_1', 'PUJAB / Application form filling assistance.') }}</li>
+            <li class="editable" data-key="about_careers_service_2">{{ site_content.get('about_careers_service_2', 'Subject combination advice for A-Level.') }}</li>
+            <li class="editable" data-key="about_careers_service_3">{{ site_content.get('about_careers_service_3', 'Psychometric testing and career aptitude analysis.') }}</li>
+            <li class="editable" data-key="about_careers_service_4">{{ site_content.get('about_careers_service_4', 'University open day coordination.') }}</li>
+            {% if site_content.get('about_careers_service_5') %}
+            <li class="editable" data-key="about_careers_service_5">{{ site_content.get('about_careers_service_5') }}</li>
+            {% endif %}
+            {% if site_content.get('about_careers_service_6') %}
+            <li class="editable" data-key="about_careers_service_6">{{ site_content.get('about_careers_service_6') }}</li>
+            {% endif %}
         </ul>
+
+        {% set closing = site_content.get('about_careers_closing', '') %}
+        {% if closing %}
+        <div class="alert alert-info mt-4 editable" data-key="about_careers_closing">{{ closing }}</div>
+        {% endif %}
+
+        {% if current_user.is_authenticated and current_user.role == 'SuperUser' %}
+        <div class="alert alert-secondary mt-4 small d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-info-circle me-1"></i>
+                <strong>SU tip:</strong> click <em>Edit Text</em> on the SU dashboard to live-edit any text on this page.
+                Personnel photos and the hero image use the keys
+                <code>about_careers_hero_image</code>,
+                <code>about_careers_personnel1_image</code>,
+                <code>about_careers_personnel2_image</code>,
+                <code>about_careers_personnel3_image</code> — manage them from the
+                <strong>Page Images</strong> tab.</span>
+            <a href="{{ url_for('su.dashboard') }}#pages-panel" class="btn btn-sm btn-outline-primary ms-2">
+                <i class="bi bi-pencil-square"></i> Open SU
+            </a>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

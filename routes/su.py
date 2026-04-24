@@ -78,6 +78,10 @@ def dashboard():
     pages = CustomPage.query.order_by(CustomPage.created_at.desc()).all()
     core_pages = [
         {"name": "Landing Page", "url": url_for("index"), "editable": "Live Edit"},
+        {"name": "About Careers Office", "url": url_for("student.about_careers"), "editable": "Live Edit"},
+        {"name": "How to Apply (PUJAB)", "url": url_for("student.how_to_apply"), "editable": "Live Edit"},
+        {"name": "Weighting System", "url": url_for("student.weighting_system"), "editable": "Live Edit"},
+        {"name": "About Institutions", "url": url_for("student.about_institutions"), "editable": "Live Edit"},
         {"name": "Login", "url": url_for("auth.login"), "editable": "Template"},
         {"name": "Registration", "url": url_for("auth.register"), "editable": "Template"},
         {"name": "Student Portal", "url": url_for("student.portal"), "editable": "App Data"},
