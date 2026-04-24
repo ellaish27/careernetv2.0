@@ -1,4 +1,4 @@
-"""SMTP email helper for sending password reset codes via Outlook."""
+"""SMTP email helper for sending password reset codes via Gmail."""
 import os
 import smtplib
 import logging
@@ -7,18 +7,19 @@ from email.mime.multipart import MIMEMultipart
 
 logger = logging.getLogger(__name__)
 
-SMTP_HOST = "smtp-mail.outlook.com"
+SMTP_HOST = "smtp.gmail.com"
 SMTP_PORT = 587
 
 
 def _get_credentials():
-    sender = os.environ.get("OUTLOOK_EMAIL")
-    password = os.environ.get("OUTLOOK_PASSWORD")
+    sender = os.environ.get("GMAIL_EMAIL")
+    password = os.environ.get("GMAIL_APP_PASSWORD")
     if not sender or not password:
         raise RuntimeError(
-            "OUTLOOK_EMAIL and OUTLOOK_PASSWORD environment variables must be set."
+            "GMAIL_EMAIL and GMAIL_APP_PASSWORD environment variables must be set."
         )
-    return sender, password
+    # Gmail app passwords are usually shown with spaces; strip them.
+    return sender, password.replace(" ", "")
 
 
 def send_reset_code_email(recipient_email: str, recipient_name: str, code: str) -> bool:
@@ -101,7 +102,7 @@ def send_reset_code_email(recipient_email: str, recipient_name: str, code: str) 
         logger.info(f"Sent password reset code to {recipient_email}")
         return True
     except smtplib.SMTPAuthenticationError as e:
-        logger.error(f"Outlook SMTP auth failed: {e}")
+        logger.error(f"Gmail SMTP auth failed: {e}")
         return False
     except Exception as e:
         logger.error(f"Failed to send reset email to {recipient_email}: {e}", exc_info=True)

@@ -18,6 +18,6 @@ Flask-based careers/student portal application.
 ## Password Reset (Forgot Password)
 - Flow: `/forgot-password` → `/verify-reset-code` → `/reset-password`
 - Sends a 6-digit numeric code (15-min TTL, max 5 attempts) to the email stored on the student profile.
-- Email is delivered via Outlook SMTP (`smtp-mail.outlook.com:587`, STARTTLS).
-- Required secrets: `OUTLOOK_EMAIL`, `OUTLOOK_PASSWORD` (use an App Password if 2FA is enabled).
+- Email is delivered via Gmail SMTP (`smtp.gmail.com:587`, STARTTLS).
+- Required secrets: `GMAIL_EMAIL`, `GMAIL_APP_PASSWORD` (a 16-char Google App Password — generate at https://myaccount.google.com/apppasswords with 2-Step Verification enabled).
 - Implementation: `email_service.py`, routes in `routes/auth.py`, model `PasswordResetCode` in `models.py`.
