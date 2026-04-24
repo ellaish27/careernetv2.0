@@ -9,3 +9,16 @@ Flask-Limiter
 bleach
 gunicorn
 matplotlib
+bleach
+email-validator
+flask
+flask-limiter
+flask-login
+flask-sqlalchemy
+flask-wtf
+gunicorn
+matplotlib
+numpy
+openpyxl
+reportlab
+werkzeug
