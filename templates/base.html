@@ -16,7 +16,9 @@
             --font-family: {{ site_theme.get("font-family", "Segoe UI") }};
             --body-bg: #f3f5f9;
             --text-color: #1f2937;
+            --heading-color: #0f172a;
             --card-bg: #ffffff;
+            --card-header-bg: #ffffff;
             --muted-text: #64748b;
             --border-color: #e2e8f0;
             --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
@@ -24,6 +26,10 @@
             --radius-md: 10px;
             --radius-lg: 14px;
             --link-color: #1d4ed8;
+            --warning-text: #92400e;
+            --info-text: #0369a1;
+            --success-text: #166534;
+            --danger-text: #991b1b;
             --sidebar-text: rgba(255,255,255,0.88);
             --sidebar-text-muted: rgba(255,255,255,0.68);
             --sidebar-hover-bg: rgba(255,255,255,0.14);
@@ -36,9 +42,15 @@
                 --font-family: {{ user_theme.font }};
                 --body-bg: {{ user_theme.bg }};
                 --text-color: {{ user_theme.text }};
+                --heading-color: {{ user_theme.text }};
                 --card-bg: transparent;
+                --card-header-bg: color-mix(in srgb, {{ user_theme.text }} 6%, transparent);
                 --muted-text: color-mix(in srgb, {{ user_theme.text }} 72%, transparent);
                 --border-color: color-mix(in srgb, {{ user_theme.text }} 22%, transparent);
+                --warning-text: {{ user_theme.text }};
+                --info-text: {{ user_theme.text }};
+                --success-text: {{ user_theme.text }};
+                --danger-text: {{ user_theme.text }};
                 --sidebar-text: {{ user_theme.text }};
                 --sidebar-text-muted: color-mix(in srgb, {{ user_theme.text }} 72%, transparent);
                 --sidebar-hover-bg: color-mix(in srgb, {{ user_theme.text }} 14%, transparent);
@@ -51,10 +63,16 @@
             :root {
                 --sidebar-bg: #070d18;
                 --card-bg: #0f172a;
-                --text-color: #ffffff;
-                --muted-text: rgba(255,255,255,0.74);
+                --card-header-bg: rgba(255,255,255,0.04);
+                --text-color: #f8fafc;
+                --heading-color: #ffffff;
+                --muted-text: rgba(255,255,255,0.72);
                 --border-color: rgba(255,255,255,0.10);
                 --link-color: #a5c9ff;
+                --warning-text: #fbbf24;
+                --info-text: #67e8f9;
+                --success-text: #4ade80;
+                --danger-text: #fca5a5;
                 --sidebar-text: rgba(255,255,255,0.90);
                 --sidebar-text-muted: rgba(255,255,255,0.68);
                 --sidebar-hover-bg: rgba(255,255,255,0.12);
@@ -116,8 +134,14 @@
                 --sidebar-bg: #000000;
                 --accent-color: #0ff;
                 --text-color: #ffffff;
+                --heading-color: #ffffff;
+                --card-header-bg: rgba(255,255,255,0.06);
                 --muted-text: rgba(255,255,255,0.78);
                 --link-color: #67e8f9;
+                --warning-text: #fde047;
+                --info-text: #67e8f9;
+                --success-text: #86efac;
+                --danger-text: #fca5a5;
                 --sidebar-text: rgba(255,255,255,0.92);
                 --sidebar-text-muted: rgba(255,255,255,0.74);
                 --sidebar-hover-bg: rgba(255,255,255,0.16);
@@ -126,10 +150,16 @@
             :root {
                 --body-bg: #050814;
                 --text-color: #ffffff;
+                --heading-color: #ffffff;
                 --muted-text: rgba(255,255,255,0.78);
                 --border-color: rgba(255,255,255,0.14);
                 --card-bg: rgba(255,255,255,0.10);
+                --card-header-bg: rgba(255,255,255,0.06);
                 --link-color: #93c5fd;
+                --warning-text: #fde68a;
+                --info-text: #93c5fd;
+                --success-text: #86efac;
+                --danger-text: #fca5a5;
                 --sidebar-text: rgba(255,255,255,0.92);
                 --sidebar-text-muted: rgba(255,255,255,0.74);
                 --sidebar-hover-bg: rgba(255,255,255,0.16);
@@ -164,11 +194,17 @@
             :root {
                 --body-bg: #071321;
                 --text-color: #ffffff;
+                --heading-color: #ffffff;
                 --muted-text: rgba(255,255,255,0.78);
                 --border-color: rgba(255,255,255,0.14);
                 --card-bg: rgba(255,255,255,0.08);
+                --card-header-bg: rgba(255,255,255,0.05);
                 --accent-color: #22c55e;
                 --link-color: #a5b4fc;
+                --warning-text: #fde68a;
+                --info-text: #a5b4fc;
+                --success-text: #86efac;
+                --danger-text: #fca5a5;
                 --sidebar-bg: #04101c;
                 --sidebar-text: rgba(255,255,255,0.92);
                 --sidebar-text-muted: rgba(255,255,255,0.74);
@@ -186,11 +222,17 @@
             :root {
                 --body-bg: #160a1b;
                 --text-color: #ffffff;
+                --heading-color: #ffffff;
                 --muted-text: rgba(255,255,255,0.78);
                 --border-color: rgba(255,255,255,0.14);
                 --card-bg: rgba(255,255,255,0.08);
+                --card-header-bg: rgba(255,255,255,0.05);
                 --accent-color: #fb7185;
                 --link-color: #fda4af;
+                --warning-text: #fde68a;
+                --info-text: #fbcfe8;
+                --success-text: #bbf7d0;
+                --danger-text: #fecaca;
                 --sidebar-bg: #140715;
                 --sidebar-text: rgba(255,255,255,0.92);
                 --sidebar-text-muted: rgba(255,255,255,0.74);
@@ -207,14 +249,55 @@
         {% endif %}
 
         body {
-            font-family: var(--font-family), Roboto, sans-serif;
+            font-family: var(--font-family), "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
             background-color: var(--body-bg);
             color: var(--text-color);
             line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
-        a { color: var(--link-color); }
-        a:hover { filter: brightness(1.05); }
+        a { color: var(--link-color); text-decoration: none; }
+        a:hover { filter: brightness(1.08); text-decoration: underline; }
         .text-muted { color: var(--muted-text) !important; }
+
+        /* --- PROFESSIONAL TYPOGRAPHY --- */
+        h1, h2, h3, h4, h5, h6,
+        .h1, .h2, .h3, .h4, .h5, .h6 {
+            color: var(--heading-color);
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            line-height: 1.25;
+        }
+        h1, .h1 { font-weight: 800; letter-spacing: -0.02em; }
+        h5, .h5, h6, .h6 { font-weight: 600; letter-spacing: 0; }
+        p, li, td, th, label, input, select, textarea, button {
+            color: var(--text-color);
+        }
+        .form-label, label.form-label {
+            color: var(--heading-color);
+            font-weight: 600;
+            font-size: 0.92rem;
+            margin-bottom: 0.35rem;
+        }
+        small, .small { color: var(--muted-text); }
+        strong, b { color: var(--heading-color); font-weight: 700; }
+
+        /* Theme-aware Bootstrap text utilities (so they don't look harsh on light or wash out on dark) */
+        .text-warning { color: var(--warning-text) !important; }
+        .text-info    { color: var(--info-text) !important; }
+        .text-success { color: var(--success-text) !important; }
+        .text-danger  { color: var(--danger-text) !important; }
+
+        /* Make `card-header bg-white` theme-aware so dark themes don't get a stark white bar */
+        .card-header.bg-white {
+            background-color: var(--card-header-bg) !important;
+            color: var(--heading-color);
+            font-weight: 600;
+        }
+        .card-header { color: var(--heading-color); }
+        .table { color: var(--text-color); }
+        .table > :not(caption) > * > * { color: inherit; }
 
         /* Animated theme backdrop (Glass/Aurora/Sunset) */
         #theme-bg {
