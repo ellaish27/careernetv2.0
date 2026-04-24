@@ -3,7 +3,7 @@ from flask import Flask, render_template, redirect, url_for, jsonify, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 from config import Config
 from extensions import db, login_manager, csrf
-from models import User, Student, SiteContent, SiteTheme, University, AcademicRecord, CustomPage
+from models import User, Student, SiteContent, SiteTheme, University, AcademicRecord, CustomPage, PasswordResetCode
 from routes.auth import auth_bp
 from routes.student import student_bp
 from routes.admin import admin_bp

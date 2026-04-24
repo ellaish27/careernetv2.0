@@ -434,7 +434,7 @@
     <style>body { padding-top: 40px; }</style>
     {% endif %}
 
-    {% if request.endpoint in ['auth.login', 'index', 'auth.register'] %}
+    {% if request.endpoint in ['auth.login', 'index', 'auth.register', 'auth.forgot_password', 'auth.verify_reset_code', 'auth.reset_password'] %}
     <canvas id="particle-canvas"></canvas>
     <div class="login-body">
         <div class="container">
@@ -632,7 +632,7 @@
         const SITE_CONTENT = {{ site_content|tojson }};
 
         // Particle background for auth pages
-        {% if request.endpoint in ['auth.login', 'index', 'auth.register'] %}
+        {% if request.endpoint in ['auth.login', 'index', 'auth.register', 'auth.forgot_password', 'auth.verify_reset_code', 'auth.reset_password'] %}
         const canvas = document.getElementById('particle-canvas');
         if (canvas) {
             const ctx = canvas.getContext('2d');

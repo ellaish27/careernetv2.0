@@ -1,10 +1,13 @@
 # routes/auth.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 from extensions import db, csrf
-from models import User, Student
+from models import User, Student, PasswordResetCode
 from utils import calculate_combination_code
+from email_service import send_reset_code_email
+from datetime import datetime, timedelta
+import secrets
 import json
 import re
 import logging
@@ -241,3 +244,189 @@ def check_username_availability():
         'available': not exists,
         'message': 'Username available' if not exists else 'Username already taken'
     })
+
+# ============================================================
+# Password reset (forgot password) flow
+# ============================================================
+
+RESET_CODE_TTL_MINUTES = 15
+RESET_MAX_ATTEMPTS = 5
+
+
+def _generate_reset_code() -> str:
+    """Generate a cryptographically secure 6-digit numeric code."""
+    return f"{secrets.randbelow(1_000_000):06d}"
+
+
+def _find_user_by_email(email: str):
+    """Find a User by email (looked up via Student profile)."""
+    if not email:
+        return None
+    student = Student.query.filter(Student.email.ilike(email)).first()
+    if student and student.user_id:
+        return User.query.get(student.user_id), student
+    return None, None
+
+
+@auth_bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    """Step 1: User submits email to receive a reset code."""
+    if current_user.is_authenticated:
+        return redirect(url_for('auth.login'))
+
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+
+        if not email or '@' not in email:
+            flash('Please enter a valid email address.', 'danger')
+            return redirect(url_for('auth.forgot_password'))
+
+        user_record = _find_user_by_email(email)
+        user, student = (user_record if isinstance(user_record, tuple) else (None, None))
+
+        # Always show the same success message to prevent email enumeration,
+        # but only actually send if the email is registered.
+        if user and student:
+            try:
+                # Invalidate any prior unused codes for this user
+                PasswordResetCode.query.filter_by(user_id=user.id, used=False).update({'used': True})
+
+                code = _generate_reset_code()
+                reset = PasswordResetCode(
+                    user_id=user.id,
+                    code_hash=generate_password_hash(code, method='scrypt', salt_length=16),
+                    email=student.email,
+                    expires_at=datetime.utcnow() + timedelta(minutes=RESET_CODE_TTL_MINUTES),
+                    used=False,
+                    attempts=0,
+                )
+                db.session.add(reset)
+                db.session.commit()
+
+                sent = send_reset_code_email(student.email, student.name or user.username, code)
+                if not sent:
+                    logger.error(f"Reset code generated but email failed for user {user.id}")
+                    flash('We could not send the reset email right now. Please try again in a moment.', 'danger')
+                    return redirect(url_for('auth.forgot_password'))
+
+                # Stash the pending reset id in the session for the next steps
+                session['pending_reset_id'] = reset.id
+                logger.info(f"Password reset code issued for user {user.id}")
+            except Exception as e:
+                db.session.rollback()
+                logger.error(f"Failed to issue reset code: {e}", exc_info=True)
+                flash('Something went wrong. Please try again.', 'danger')
+                return redirect(url_for('auth.forgot_password'))
+        else:
+            logger.info(f"Forgot-password request for unknown email: {email}")
+            # Pretend a code was issued so we don't leak which emails exist.
+            session['pending_reset_id'] = -1
+            session['pending_reset_email'] = email
+
+        if user and student:
+            session['pending_reset_email'] = student.email
+        flash('If that email is registered, a verification code has been sent.', 'info')
+        return redirect(url_for('auth.verify_reset_code'))
+
+    return render_template('forgot_password.html')
+
+
+@auth_bp.route('/verify-reset-code', methods=['GET', 'POST'])
+def verify_reset_code():
+    """Step 2: User enters the 6-digit code from their email."""
+    if current_user.is_authenticated:
+        return redirect(url_for('auth.login'))
+
+    pending_id = session.get('pending_reset_id')
+    masked_email = session.get('pending_reset_email', '')
+    if pending_id is None:
+        flash('Please start a password reset first.', 'warning')
+        return redirect(url_for('auth.forgot_password'))
+
+    if request.method == 'POST':
+        code = (request.form.get('code') or '').strip()
+
+        if not re.fullmatch(r'\d{6}', code):
+            flash('Please enter the 6-digit code sent to your email.', 'danger')
+            return redirect(url_for('auth.verify_reset_code'))
+
+        # Decoy path: no real reset is pending
+        if pending_id == -1:
+            flash('Invalid or expired code. Please request a new one.', 'danger')
+            return redirect(url_for('auth.forgot_password'))
+
+        reset = PasswordResetCode.query.get(pending_id)
+        if not reset or reset.used or reset.expires_at < datetime.utcnow():
+            flash('This code has expired. Please request a new one.', 'danger')
+            session.pop('pending_reset_id', None)
+            session.pop('pending_reset_email', None)
+            return redirect(url_for('auth.forgot_password'))
+
+        if reset.attempts >= RESET_MAX_ATTEMPTS:
+            reset.used = True
+            db.session.commit()
+            flash('Too many incorrect attempts. Please request a new code.', 'danger')
+            session.pop('pending_reset_id', None)
+            session.pop('pending_reset_email', None)
+            return redirect(url_for('auth.forgot_password'))
+
+        if not check_password_hash(reset.code_hash, code):
+            reset.attempts += 1
+            db.session.commit()
+            remaining = RESET_MAX_ATTEMPTS - reset.attempts
+            flash(f'Incorrect code. You have {remaining} attempt(s) left.', 'danger')
+            return redirect(url_for('auth.verify_reset_code'))
+
+        # Code matches -- mark it as verified for the next step
+        session['verified_reset_id'] = reset.id
+        return redirect(url_for('auth.reset_password'))
+
+    return render_template('verify_reset_code.html', email=masked_email)
+
+
+@auth_bp.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    """Step 3: User chooses a new password after verifying the code."""
+    if current_user.is_authenticated:
+        return redirect(url_for('auth.login'))
+
+    verified_id = session.get('verified_reset_id')
+    if not verified_id:
+        flash('Please verify your reset code first.', 'warning')
+        return redirect(url_for('auth.forgot_password'))
+
+    reset = PasswordResetCode.query.get(verified_id)
+    if not reset or reset.used or reset.expires_at < datetime.utcnow():
+        flash('Your reset session has expired. Please start again.', 'danger')
+        for k in ('pending_reset_id', 'pending_reset_email', 'verified_reset_id'):
+            session.pop(k, None)
+        return redirect(url_for('auth.forgot_password'))
+
+    if request.method == 'POST':
+        new_password = request.form.get('password', '')
+        confirm = request.form.get('confirm_password', '')
+
+        if not new_password or len(new_password) < 6:
+            flash('Password must be at least 6 characters long.', 'danger')
+            return redirect(url_for('auth.reset_password'))
+        if new_password != confirm:
+            flash('Passwords do not match.', 'danger')
+            return redirect(url_for('auth.reset_password'))
+
+        user = User.query.get(reset.user_id)
+        if not user:
+            flash('Account not found. Please contact support.', 'danger')
+            return redirect(url_for('auth.login'))
+
+        user.password = generate_password_hash(new_password, method='scrypt', salt_length=16)
+        reset.used = True
+        db.session.commit()
+
+        for k in ('pending_reset_id', 'pending_reset_email', 'verified_reset_id'):
+            session.pop(k, None)
+
+        logger.info(f"Password reset completed for user {user.id}")
+        flash('Your password has been reset. You can now sign in.', 'success')
+        return redirect(url_for('auth.login'))
+
+    return render_template('reset_password.html')
