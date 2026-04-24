@@ -294,6 +294,71 @@ def edit_page(page_id):
     return redirect(url_for('su.dashboard'))
 
 
+@su_bp.route('/preview_page', methods=['POST'])
+@login_required
+@su_required
+def preview_page():
+    """Render an in-progress page edit using the real page.html template.
+
+    Used by the SU dashboard editor to provide a live preview while typing.
+    Returns the rendered HTML as a standalone fragment (no nav/sidebar).
+    """
+    title = (request.form.get('title') or 'Untitled').strip()
+    content = request.form.get('content') or ''
+
+    # A minimal stand-in object for the page.html template's `page.title` /
+    # `page.content` references — avoids hitting the DB during preview.
+    class _Preview:
+        pass
+    p = _Preview()
+    p.title = title
+    p.content = content
+
+    html = f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Preview · {p.title}</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+<style>
+  :root {{
+    --accent-color: #D4AF37;
+    --card-header-bg: #f8f9fa;
+    --heading-color: #0f172a;
+  }}
+  body {{
+    font-family: "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
+    background: #f3f5f9;
+    color: #1f2937;
+    -webkit-font-smoothing: antialiased;
+  }}
+  h1,h2,h3,h4,h5,h6 {{ color: var(--heading-color); font-weight: 700; letter-spacing: -0.01em; }}
+  .page-content img {{ max-width: 100%; height: auto; border-radius: 8px; margin: 1rem 0; }}
+  .page-content a {{ color: var(--accent-color); text-decoration: underline; }}
+  .page-content table {{ width: 100%; border-collapse: collapse; margin: 1rem 0; }}
+  .page-content th, .page-content td {{ border: 1px solid #dee2e6; padding: 8px 12px; text-align: left; }}
+  .page-content th {{ background-color: var(--card-header-bg); }}
+</style>
+</head>
+<body>
+<div class="container py-4">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">{p.title}</h1>
+        <span class="badge bg-warning text-dark">Preview</span>
+      </div>
+      <hr>
+      <div class="page-content">{p.content}</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>"""
+    return html
+
+
 @su_bp.route('/delete_page/<int:page_id>', methods=['POST'])
 @login_required
 @su_required

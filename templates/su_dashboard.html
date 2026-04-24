@@ -115,17 +115,30 @@
                         <!-- Page List Table -->
                         <div class="table-responsive mb-4">
                             <table class="table table-hover align-middle">
-                                <thead class="table-light"><tr><th>Title</th><th>Slug</th><th>Status</th><th>Actions</th></tr></thead>
+                                <thead class="table-light"><tr><th>Title</th><th>URL</th><th>Status</th><th>Actions</th></tr></thead>
                                 <tbody>
                                     {% for p in pages %}
                                     <tr>
-                                        <td class="fw-bold">{{ p.title }}</td>
-                                        <td><code>/page/{{ p.slug }}</code></td>
+                                        <td>
+                                            <button class="btn btn-link p-0 fw-bold text-decoration-none edit-page-btn"
+                                                    data-id="{{ p.id }}" data-slug="{{ p.slug }}"
+                                                    data-title="{{ p.title }}" data-content="{{ p.content|e }}"
+                                                    title="Click to edit with live preview">
+                                                {{ p.title }}
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('view_custom_page', slug=p.slug) }}" target="_blank" class="text-decoration-none">
+                                                <code class="small">/page/{{ p.slug }}</code>
+                                                <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                                            </a>
+                                        </td>
                                         <td><span class="badge bg-success">Live</span></td>
                                         <td class="d-flex gap-2">
-                                            <a href="{{ url_for('view_custom_page', slug=p.slug) }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-eye me-1"></i>View</a>
+                                            <a href="{{ url_for('view_custom_page', slug=p.slug) }}" target="_blank" class="btn btn-sm btn-outline-info" title="Open in new tab"><i class="bi bi-eye me-1"></i>View</a>
                                             <button class="btn btn-sm btn-outline-primary edit-page-btn" 
-                                                    data-id="{{ p.id }}" data-title="{{ p.title }}" data-content="{{ p.content|e }}">
+                                                    data-id="{{ p.id }}" data-slug="{{ p.slug }}"
+                                                    data-title="{{ p.title }}" data-content="{{ p.content|e }}">
                                                 <i class="bi bi-pencil me-1"></i>Edit
                                             </button>
                                             <form method="POST" action="{{ url_for('su.delete_page', page_id=p.id) }}" class="d-inline" onsubmit="return confirm('Delete this page?');">
@@ -141,20 +154,44 @@
                             </table>
                         </div>
 
-                        <!-- WYSIWYG Editor Modal Area -->
-                        <div id="editor-area" class="border rounded p-3 bg-light" style="display: none;">
+                        <!-- WYSIWYG Editor + Live Preview -->
+                        <div id="editor-area" class="border rounded p-3" style="display: none; background: var(--card-header-bg);">
                             <form id="pageEditForm" method="POST">
                                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                 <input type="hidden" name="page_id" id="edit-page-id">
-                                <div class="row mb-3">
-                                    <div class="col-8"><label class="form-label small fw-bold">Page Title</label><input type="text" id="edit-title" name="title" class="form-control" required></div>
-                                    <div class="col-4 d-flex align-items-end gap-2">
-                                        <button type="submit" class="btn btn-success w-100"><i class="bi bi-save me-1"></i>Publish Live</button>
-                                        <button type="button" class="btn btn-secondary w-100" onclick="closeEditor()">Cancel</button>
+                                <div class="row mb-3 align-items-end g-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold mb-1">Page Title</label>
+                                        <input type="text" id="edit-title" name="title" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold mb-1">URL</label>
+                                        <a id="edit-slug-link" href="#" target="_blank" class="d-block text-truncate small text-decoration-none border rounded px-2 py-2"><code id="edit-slug-text">—</code></a>
+                                    </div>
+                                    <div class="col-md-3 d-flex gap-2">
+                                        <button type="submit" class="btn btn-success flex-grow-1"><i class="bi bi-save me-1"></i>Publish</button>
+                                        <button type="button" class="btn btn-secondary" onclick="closeEditor()">Cancel</button>
                                     </div>
                                 </div>
-                                <label class="form-label small fw-bold">Page Content (Edit Visually)</label>
-                                <textarea id="tinymce-editor" name="content"></textarea>
+
+                                <div class="row g-3">
+                                    <div class="col-lg-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label class="form-label small fw-bold mb-0"><i class="bi bi-pencil-square me-1"></i>Editor</label>
+                                            <span class="small text-muted">Edits autoupdate the preview →</span>
+                                        </div>
+                                        <textarea id="tinymce-editor" name="content"></textarea>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label class="form-label small fw-bold mb-0"><i class="bi bi-eye-fill me-1"></i>Live Preview</label>
+                                            <span id="preview-status" class="small text-muted">Idle</span>
+                                        </div>
+                                        <iframe id="page-preview" title="Page preview"
+                                                style="width:100%; height:560px; border:1px solid var(--border-color); border-radius:8px; background:#fff;"
+                                                sandbox="allow-same-origin"></iframe>
+                                    </div>
+                                </div>
                             </form>
                         </div>
                     </div><!-- /tab pm-pages -->
@@ -495,17 +532,77 @@
                 else reject(j.error || 'Upload failed');
             }).catch(err => reject(String(err)));
         }),
-        content_style: 'body { font-family:Segoe UI,Roboto,Arial,sans-serif; font-size:15px; line-height:1.6; } h1,h2,h3,h4,h5,h6 { margin-top: 1rem; margin-bottom: .5rem; }'
+        content_style: 'body { font-family:Segoe UI,Roboto,Arial,sans-serif; font-size:15px; line-height:1.6; } h1,h2,h3,h4,h5,h6 { margin-top: 1rem; margin-bottom: .5rem; }',
+        setup: function (editor) {
+            // Push every keystroke / formatting change into the live preview iframe.
+            editor.on('input keyup change Undo Redo SetContent', function () {
+                if (typeof schedulePreview === 'function') schedulePreview();
+            });
+        }
     });
+
+    let _previewTimer = null;
+    let _previewInflight = false;
+
+    function refreshPreview() {
+        const iframe = document.getElementById('page-preview');
+        const status = document.getElementById('preview-status');
+        if (!iframe) return;
+        const title = document.getElementById('edit-title').value || 'Untitled';
+        const editor = tinymce.get('tinymce-editor');
+        const content = editor ? editor.getContent() : (document.getElementById('tinymce-editor')?.value || '');
+
+        if (_previewInflight) return;
+        _previewInflight = true;
+        if (status) { status.textContent = 'Updating…'; status.className = 'small text-muted'; }
+
+        const fd = new FormData();
+        fd.append('title', title);
+        fd.append('content', content);
+        fd.append('csrf_token', CSRF_TOKEN);
+        fetch('/su/preview_page', {
+            method: 'POST',
+            headers: {'X-CSRFToken': CSRF_TOKEN},
+            body: fd
+        })
+        .then(r => r.text())
+        .then(html => {
+            iframe.srcdoc = html;
+            if (status) { status.textContent = '✓ Up to date'; status.className = 'small text-success'; }
+        })
+        .catch(() => {
+            if (status) { status.textContent = 'Preview failed'; status.className = 'small text-danger'; }
+        })
+        .finally(() => { _previewInflight = false; });
+    }
+
+    function schedulePreview() {
+        clearTimeout(_previewTimer);
+        const status = document.getElementById('preview-status');
+        if (status) { status.textContent = 'Typing…'; status.className = 'small text-muted'; }
+        _previewTimer = setTimeout(refreshPreview, 600);
+    }
 
     function openEditorFromButton(btn) {
         const id = btn.dataset.id;
+        const slug = btn.dataset.slug || '';
         const title = btn.dataset.title || '';
         const content = btn.dataset.content || '';
 
         document.getElementById('edit-page-id').value = id;
         document.getElementById('edit-title').value = title;
         document.getElementById('pageEditForm').action = '/su/pages/edit/' + id;
+
+        const slugLink = document.getElementById('edit-slug-link');
+        const slugText = document.getElementById('edit-slug-text');
+        if (slug) {
+            slugLink.href = '/page/' + slug;
+            slugText.textContent = '/page/' + slug;
+        } else {
+            slugLink.href = '#';
+            slugText.textContent = '—';
+        }
+
         document.getElementById('editor-area').style.display = 'block';
 
         // TinyMCE may still be initializing on slower clients.
@@ -518,6 +615,8 @@
         }
 
         document.getElementById('editor-area').scrollIntoView({ behavior: 'smooth' });
+        // Render the initial preview right away.
+        setTimeout(refreshPreview, 200);
     }
 
     // Delegated handler is more reliable for dynamic/rehydrated DOM.
@@ -528,6 +627,9 @@
         openEditorFromButton(btn);
     });
 
+    // Refresh preview when the title input changes too.
+    document.getElementById('edit-title')?.addEventListener('input', schedulePreview);
+
     function closeEditor() {
         document.getElementById('editor-area').style.display = 'none';
         const editor = tinymce.get('tinymce-editor');
@@ -537,6 +639,8 @@
             const textarea = document.getElementById('tinymce-editor');
             if (textarea) textarea.value = '';
         }
+        const iframe = document.getElementById('page-preview');
+        if (iframe) iframe.srcdoc = '';
     }
 
     // AJAX Content & Theme Saving (top-of-dashboard quick forms)
