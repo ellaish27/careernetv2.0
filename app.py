@@ -134,7 +134,19 @@ def init_db():
     app = create_app()
     with app.app_context():
         db.create_all()
-        
+
+        # Lightweight migration: add the User.email column on existing SQLite DBs
+        try:
+            from sqlalchemy import text, inspect
+            insp = inspect(db.engine)
+            user_cols = {c['name'] for c in insp.get_columns('user')}
+            if 'email' not in user_cols:
+                with db.engine.begin() as conn:
+                    conn.execute(text('ALTER TABLE user ADD COLUMN email VARCHAR(120)'))
+                print("✅ Migrated: added User.email column")
+        except Exception as e:
+            print(f"⚠️ User.email migration check failed: {e}")
+
         # Seed Site Content
         if not SiteContent.query.first():
             db.session.add_all([

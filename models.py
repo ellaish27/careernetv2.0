@@ -8,6 +8,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
     role = db.Column(db.String(20), default='Student')
+    email = db.Column(db.String(120))
     theme_pref = db.Column(db.Text, default='{"type":"light"}')
     profile = db.relationship('Student', backref='user', uselist=False, cascade="all, delete-orphan")
 

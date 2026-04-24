@@ -36,6 +36,7 @@ def create_admin():
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
+        email = request.form.get('email', '').strip()
         
         if not username or not password:
             flash('Username and password are required.', 'danger')
@@ -49,9 +50,13 @@ def create_admin():
             flash(f'Username "{username}" already exists.', 'danger')
             return redirect(url_for('admin.create_admin'))
         
+        if email and '@' not in email:
+            flash('Please enter a valid email address (or leave it blank).', 'danger')
+            return redirect(url_for('admin.create_admin'))
+        
         try:
             hashed_pw = generate_password_hash(password, method='scrypt')
-            new_user = User(username=username, password=hashed_pw, role='Administrator')
+            new_user = User(username=username, password=hashed_pw, role='Administrator', email=email or None)
             db.session.add(new_user)
             db.session.commit()
             flash(f'Admin "{username}" created successfully.', 'success')

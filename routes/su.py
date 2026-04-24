@@ -310,8 +310,9 @@ def delete_page(page_id):
 @su_required
 def create_user():
     """Create new Admin/SuperUser account"""
-    username = request.form.get('username')
-    password = request.form.get('password')
+    username = (request.form.get('username') or '').strip()
+    password = request.form.get('password') or ''
+    email = (request.form.get('email') or '').strip()
     role = request.form.get('role')
 
     if not username or not password:
@@ -322,14 +323,39 @@ def create_user():
         flash('Invalid role selected.', 'danger')
         return redirect(url_for('su.dashboard'))
 
+    if email and '@' not in email:
+        flash('Please enter a valid email address (or leave it blank).', 'danger')
+        return redirect(url_for('su.dashboard'))
+
     if User.query.filter_by(username=username).first():
         flash('Username already exists.', 'danger')
     else:
         hashed_pw = generate_password_hash(password, method='scrypt')
-        new_user = User(username=username, password=hashed_pw, role=role)
+        new_user = User(username=username, password=hashed_pw, role=role, email=email or None)
         db.session.add(new_user)
         db.session.commit()
         flash(f'User {username} created as {role}.', 'success')
+    return redirect(url_for('su.dashboard'))
+
+
+@su_bp.route('/update_user_email/<int:user_id>', methods=['POST'])
+@login_required
+@su_required
+def update_user_email(user_id):
+    """Set or update an Admin/SuperUser's email (used for password reset)."""
+    target = User.query.get_or_404(user_id)
+    if target.role not in ['Administrator', 'SuperUser']:
+        flash('Email here can only be set for Admins or SuperUsers.', 'danger')
+        return redirect(url_for('su.dashboard'))
+
+    email = (request.form.get('email') or '').strip()
+    if email and '@' not in email:
+        flash('Please enter a valid email address (or leave it blank to clear).', 'danger')
+        return redirect(url_for('su.dashboard'))
+
+    target.email = email or None
+    db.session.commit()
+    flash(f'Email for {target.username} updated.', 'success')
     return redirect(url_for('su.dashboard'))
 
 @su_bp.route('/delete_content', methods=['POST'])

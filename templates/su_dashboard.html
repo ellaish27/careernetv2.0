@@ -377,11 +377,13 @@
                         <form action="{{ url_for('su.create_user') }}" method="POST">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="row g-3">
-                                <div class="col-md-4"><input type="text" name="username" class="form-control" placeholder="Username" required></div>
-                                <div class="col-md-4"><input type="password" name="password" class="form-control" placeholder="Password" required></div>
+                                <div class="col-md-3"><input type="text" name="username" class="form-control" placeholder="Username" required></div>
+                                <div class="col-md-3"><input type="email" name="email" class="form-control" placeholder="Email (for password reset)"></div>
+                                <div class="col-md-2"><input type="password" name="password" class="form-control" placeholder="Password" required></div>
                                 <div class="col-md-2"><select name="role" class="form-select"><option value="Administrator">Admin</option><option value="SuperUser">SuperUser</option></select></div>
                                 <div class="col-md-2"><button type="submit" class="btn btn-danger w-100">Create</button></div>
                             </div>
+                            <small class="text-muted d-block mt-2">Email is optional but required if this user wants to use the "Forgot password?" flow.</small>
                         </form>
                     </div>
                 </div>
@@ -396,7 +398,7 @@
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-hover align-middle mb-0">
-                                <thead class="table-light"><tr><th>Username</th><th>Role</th><th class="text-end">Actions</th></tr></thead>
+                                <thead class="table-light"><tr><th>Username</th><th>Role</th><th>Email (password reset)</th><th class="text-end">Actions</th></tr></thead>
                                 <tbody>
                                 {% for u in managed_users %}
                                     <tr>
@@ -405,6 +407,13 @@
                                             {% if u.id == current_user.id %}<span class="badge bg-info text-dark ms-1">You</span>{% endif %}
                                         </td>
                                         <td><span class="badge bg-{{ 'danger' if u.role == 'SuperUser' else 'secondary' }}">{{ u.role }}</span></td>
+                                        <td>
+                                            <form method="POST" action="{{ url_for('su.update_user_email', user_id=u.id) }}" class="d-flex gap-1">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <input type="email" name="email" value="{{ u.email or '' }}" class="form-control form-control-sm" placeholder="not set">
+                                                <button class="btn btn-sm btn-outline-primary" title="Save email"><i class="bi bi-check-lg"></i></button>
+                                            </form>
+                                        </td>
                                         <td class="text-end">
                                             {% if is_main_su and u.username != 'su2026' and u.id != current_user.id %}
                                             <form method="POST" action="{{ url_for('su.delete_user', user_id=u.id) }}" class="d-inline" onsubmit="return confirm('Delete user {{ u.username }}? This cannot be undone.');">
@@ -417,7 +426,7 @@
                                         </td>
                                     </tr>
                                 {% else %}
-                                    <tr><td colspan="3" class="text-center text-muted py-3">No admin/superuser accounts.</td></tr>
+                                    <tr><td colspan="4" class="text-center text-muted py-3">No admin/superuser accounts.</td></tr>
                                 {% endfor %}
                                 </tbody>
                             </table>
