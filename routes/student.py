@@ -1,5 +1,5 @@
 # routes/student.py
-from flask import Blueprint, render_template, request, jsonify, abort, redirect, url_for, flash
+from flask import Blueprint, render_template, request, jsonify, abort, redirect, url_for, flash, send_file, current_app, make_response
 from flask_login import login_required, current_user
 from extensions import db
 from models import Student, AcademicRecord, University
@@ -7,10 +7,51 @@ from utils import calculate_combination_code
 import logic
 import json
 import os
+import io
 import charts  # Import our chart generation module
 
 # ✅ FIX: Use __name__ (double underscores) for proper blueprint registration
 student_bp = Blueprint('student', __name__, url_prefix='/student')
+
+# ---- PUJAB booklet preview (image-rendered, download-restricted) ----
+PUJAB_PDF_PATH = os.path.join('data', 'private', '(PUJAB) 2022-2023.pdf')
+
+
+def _pujab_doc():
+    """Open the PUJAB PDF lazily; returns (doc, page_count) or (None, 0)."""
+    try:
+        import fitz  # PyMuPDF
+    except ImportError:
+        return None, 0
+    if not os.path.exists(PUJAB_PDF_PATH):
+        return None, 0
+    doc = fitz.open(PUJAB_PDF_PATH)
+    return doc, doc.page_count
+
+
+@student_bp.route('/pujab-preview/page/<int:page>.png')
+@login_required
+def pujab_preview_page(page):
+    """Render a single PUJAB page to PNG. Auth-gated; never exposes raw PDF."""
+    doc, count = _pujab_doc()
+    if doc is None or page < 1 or page > count:
+        abort(404)
+    try:
+        # 2x zoom for crisp on-screen rendering without making downloads useful
+        mat = __import__('fitz').Matrix(2.0, 2.0)
+        pix = doc.load_page(page - 1).get_pixmap(matrix=mat, alpha=False)
+        png_bytes = pix.tobytes('png')
+    finally:
+        doc.close()
+
+    resp = make_response(png_bytes)
+    resp.headers['Content-Type'] = 'image/png'
+    # Force inline display, discourage caching/saving
+    resp.headers['Content-Disposition'] = 'inline'
+    resp.headers['Cache-Control'] = 'private, no-store, no-cache, must-revalidate, max-age=0'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['X-Content-Type-Options'] = 'nosniff'
+    return resp
 
 
 @student_bp.route('/portal')
@@ -55,7 +96,10 @@ def weighting_system():
 @login_required
 def how_to_apply():
     """Guide students through the application process"""
-    return render_template('student/how_to_apply.html')
+    doc, page_count = _pujab_doc()
+    if doc is not None:
+        doc.close()
+    return render_template('student/how_to_apply.html', pujab_page_count=page_count)
 
 
 @student_bp.route('/about_careers')

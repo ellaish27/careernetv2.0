@@ -35,3 +35,4 @@ numpy
 openpyxl
 reportlab
 werkzeug
+pymupdf

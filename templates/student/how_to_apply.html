@@ -18,7 +18,7 @@
                     <p class="text-muted">Purchase the PUJAB application form from designated banks (usually Stanbic or Centenary) after UACE results are released.</p>
                 </div>
             </div>
-            
+
             <div class="d-flex mb-3">
                 <div class="me-3 text-center">
                     <span class="badge bg-primary rounded-circle p-2">2</span>
@@ -56,24 +56,116 @@
     </div>
 </div>
 
-{% set pdf_url = site_content.get('pujab_pdf_url') or url_for('static', filename='uploads/PUJAB 2022-2023.pdf') %}
 <div class="card shadow-sm mt-4 protected-content">
     <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="bi bi-file-pdf-fill text-danger me-2"></i>Latest PUJAB Application Booklet</h5>
-        {% if current_user.role == 'SuperUser' %}
-            <a href="{{ url_for('su.dashboard') }}#text-panel" class="btn btn-sm btn-outline-primary">
-                <i class="bi bi-pencil-square"></i> Change PDF (key: <code>pujab_pdf_url</code>)
-            </a>
+        <h5 class="mb-0">
+            <i class="bi bi-file-pdf-fill text-danger me-2"></i>PUJAB Application Booklet (2022&ndash;2023) &mdash; Preview Only
+        </h5>
+        <span class="badge bg-secondary"><i class="bi bi-eye-slash me-1"></i>View only &middot; download disabled</span>
+    </div>
+    <div class="card-body">
+        <p class="text-muted small mb-3">
+            This booklet is provided for on-screen reference only. Saving, printing or downloading is not permitted.
+        </p>
+
+        {% if pujab_page_count and pujab_page_count > 0 %}
+            <div id="pujab-preview"
+                 class="pujab-preview position-relative"
+                 oncontextmenu="return false;"
+                 ondragstart="return false;"
+                 onselectstart="return false;"
+                 oncopy="return false;">
+                {% for p in range(1, pujab_page_count + 1) %}
+                    <div class="pujab-page-wrap position-relative mb-3 shadow-sm">
+                        <img src="{{ url_for('student.pujab_preview_page', page=p) }}"
+                             alt="PUJAB booklet page {{ p }} (preview)"
+                             class="pujab-page-img w-100 d-block"
+                             draggable="false">
+                        <div class="pujab-watermark">HCLV CareerNet &middot; {{ current_user.username }} &middot; preview only</div>
+                        <div class="pujab-overlay" aria-hidden="true"></div>
+                        <div class="pujab-page-label small text-muted text-center mt-1">Page {{ p }} of {{ pujab_page_count }}</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info mb-0">
+                The booklet preview is not available right now. Please check back later.
+            </div>
         {% endif %}
     </div>
-    <div class="card-body p-0 position-relative" oncontextmenu="return false;">
-        <div class="position-absolute top-0 start-0 w-100 text-center py-1 small text-white"
-             style="background:rgba(13,110,253,.65); z-index:5; pointer-events:none;">
-            Courtesy of HCLV CareerNet &mdash; viewing only
-        </div>
-        <iframe src="{{ pdf_url }}#toolbar=0&navpanes=0&scrollbar=1"
-                style="width:100%; height:80vh; border:0; display:block;"
-                title="PUJAB Booklet"></iframe>
-    </div>
 </div>
+
+<style>
+    .pujab-preview {
+        max-width: 900px;
+        margin: 0 auto;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-user-drag: none;
+        -webkit-touch-callout: none;
+    }
+    .pujab-page-wrap {
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    .pujab-page-img {
+        pointer-events: none;        /* blocks right-click "save image as" target */
+        -webkit-user-drag: none;
+        user-select: none;
+    }
+    /* Transparent overlay above the image to absorb pointer/right-click events */
+    .pujab-overlay {
+        position: absolute;
+        inset: 0;
+        background: transparent;
+        z-index: 2;
+    }
+    .pujab-watermark {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: rgba(13, 110, 253, 0.12);
+        letter-spacing: 2px;
+        transform: rotate(-22deg);
+        text-transform: uppercase;
+        text-align: center;
+        padding: 1rem;
+    }
+    @media print {
+        .pujab-preview { display: none !important; }
+        body::after {
+            content: "Printing of the PUJAB booklet preview is disabled.";
+            display: block; font-size: 14pt; padding: 2rem;
+        }
+    }
+</style>
+
+<script>
+(function () {
+    var root = document.getElementById('pujab-preview');
+    if (!root) return;
+
+    // Block context menu, drag, and selection inside the preview
+    ['contextmenu', 'dragstart', 'selectstart', 'copy', 'cut'].forEach(function (evt) {
+        root.addEventListener(evt, function (e) { e.preventDefault(); }, { passive: false });
+    });
+
+    // Block common save/print shortcuts while focus is anywhere on this page
+    document.addEventListener('keydown', function (e) {
+        var key = (e.key || '').toLowerCase();
+        if ((e.ctrlKey || e.metaKey) && ['s', 'p'].indexOf(key) !== -1) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+})();
+</script>
 {% endblock %}
