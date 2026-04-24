@@ -70,9 +70,14 @@ def create_app():
     # 4. Routes
     @app.route('/')
     def index():
-        """Landing page for guests, dashboard redirect for authenticated users."""
+        """Landing page for guests, dashboard redirect for authenticated users.
+
+        Exception: SuperUsers can append `?su_edit=1` to view the landing page
+        in Live Edit mode without being redirected away.
+        """
         from flask_login import current_user
-        if current_user.is_authenticated:
+        su_edit = request.args.get('su_edit') == '1'
+        if current_user.is_authenticated and not (su_edit and current_user.role == 'SuperUser'):
             if current_user.role == 'Student':
                 return redirect(url_for('student.portal'))
             return redirect(url_for('admin.dashboard'))

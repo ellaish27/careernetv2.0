@@ -25,8 +25,10 @@ def login():
     Handle user login with secure password verification.
     Redirects to role-specific dashboard on success.
     """
-    # If already authenticated, redirect to appropriate dashboard
-    if current_user.is_authenticated:
+    # If already authenticated, redirect to appropriate dashboard.
+    # Exception: SuperUser can append `?su_edit=1` to render the page for editing.
+    su_edit = request.args.get('su_edit') == '1'
+    if current_user.is_authenticated and not (su_edit and current_user.role == 'SuperUser'):
         if current_user.role == 'SuperUser':
             return redirect(url_for('su.dashboard'))
         elif current_user.role == 'Student':
@@ -88,8 +90,10 @@ def register():
     Handle student registration with multi-step form data.
     Creates User + Student profile in a single transaction.
     """
-    # Prevent authenticated users from registering again
-    if current_user.is_authenticated:
+    # Prevent authenticated users from registering again.
+    # Exception: SuperUser can append `?su_edit=1` to render the page for editing.
+    su_edit = request.args.get('su_edit') == '1'
+    if current_user.is_authenticated and not (su_edit and current_user.role == 'SuperUser'):
         flash('You are already logged in.', 'warning')
         return redirect(url_for('student.portal') if current_user.role == 'Student' else url_for('admin.dashboard'))
     
