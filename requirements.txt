@@ -22,3 +22,16 @@ numpy
 openpyxl
 reportlab
 werkzeug
+bleach
+email-validator
+Flask
+Flask-Limiter
+Flask-Login
+Flask-SQLAlchemy
+Flask-WTF
+gunicorn
+matplotlib
+numpy
+openpyxl
+reportlab
+werkzeug
